@@ -53,10 +53,6 @@
 			<var name="folderName" value="Test Folder Name 1" />
 		</execute>
 
-		<execute macro="BookmarksFolder#gotoPG">
-			<var name="folderName" value="Test Folder Name 1" />
-		</execute>
-
 		<execute macro="Bookmark#addPG">
 			<var name="bookmarkDescription" value="Test Bookmark Description" />
 			<var name="bookmarkName" value="Test Bookmark Name" />
@@ -67,18 +63,12 @@
 			<var name="pageName" value="Bookmarks Page" />
 		</execute>
 
-		<execute macro="BookmarksFolder#addPG">
-			<var name="folderDescription" value="Test Folder Description 2" />
-			<var name="folderName" value="Test Folder Name 2" />
-		</execute>
-
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Bookmarks Page" />
 		</execute>
 
 		<execute macro="Bookmark#moveToFolderPG">
 			<var name="bookmarkName" value="Test Bookmark Name" />
-			<var name="folderName" value="Test Folder Name 1" />
 			<var name="folderName2" value="Test Folder Name 2" />
 			<var name="pageName" value="Bookmarks Page" />
 		</execute>

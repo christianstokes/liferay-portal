@@ -76,8 +76,6 @@
 			<var name="description" value="${folderDescription}" />
 		</execute>
 
-		<execute macro="PortletEntry#save" />
-
 		<execute macro="BookmarksFolder#viewFolder">
 			<var name="folderDescription" value="${folderDescription}" />
 			<var name="folderName" value="${folderName}" />
