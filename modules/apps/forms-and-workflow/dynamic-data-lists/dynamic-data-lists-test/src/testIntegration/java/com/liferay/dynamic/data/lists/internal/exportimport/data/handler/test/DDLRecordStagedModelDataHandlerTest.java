@@ -47,7 +47,6 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
-import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -81,8 +80,7 @@ public class DDLRecordStagedModelDataHandlerTest
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			SynchronousDestinationTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@Test
 	public void testExportImportWithDocumentLibraryField() throws Exception {
@@ -298,7 +296,9 @@ public class DDLRecordStagedModelDataHandlerTest
 		List<StagedModel> ddmStructureDependentStagedModels =
 			dependentStagedModelsMap.get(DDMStructure.class.getSimpleName());
 
-		Assert.assertEquals(1, ddmStructureDependentStagedModels.size());
+		Assert.assertEquals(
+			ddmStructureDependentStagedModels.toString(), 1,
+			ddmStructureDependentStagedModels.size());
 
 		DDMStructure ddmStructure =
 			(DDMStructure)ddmStructureDependentStagedModels.get(0);
@@ -309,7 +309,9 @@ public class DDLRecordStagedModelDataHandlerTest
 		List<StagedModel> ddmTemplateDependentStagedModels =
 			dependentStagedModelsMap.get(DDMTemplate.class.getSimpleName());
 
-		Assert.assertEquals(2, ddmTemplateDependentStagedModels.size());
+		Assert.assertEquals(
+			ddmTemplateDependentStagedModels.toString(), 2,
+			ddmTemplateDependentStagedModels.size());
 
 		for (StagedModel ddmTemplateDependentStagedModel :
 				ddmTemplateDependentStagedModels) {
@@ -321,7 +323,9 @@ public class DDLRecordStagedModelDataHandlerTest
 		List<StagedModel> recordSetDependentStagedModels =
 			dependentStagedModelsMap.get(DDLRecordSet.class.getSimpleName());
 
-		Assert.assertEquals(1, recordSetDependentStagedModels.size());
+		Assert.assertEquals(
+			recordSetDependentStagedModels.toString(), 1,
+			recordSetDependentStagedModels.size());
 
 		DDLRecordSet recordSet =
 			(DDLRecordSet)recordSetDependentStagedModels.get(0);

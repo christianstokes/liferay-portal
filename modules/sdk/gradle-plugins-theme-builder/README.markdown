@@ -3,6 +3,8 @@
 The Theme Builder Gradle plugin lets you run the [Liferay Theme Builder](https://github.com/liferay/liferay-portal/tree/master/modules/util/portal-tools-theme-builder)
 tool to build the Liferay theme files in your project.
 
+The plugin has been successfully tested with Gradle 2.5 up to 3.3.
+
 ## Usage
 
 To use the plugin, include it in your build script:
@@ -10,7 +12,7 @@ To use the plugin, include it in your build script:
 ```gradle
 buildscript {
 	dependencies {
-		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.theme.builder", version: "2.0.0"
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.theme.builder", version: "2.0.3"
 	}
 
 	repositories {
@@ -55,15 +57,15 @@ Name | Depends On
 [`buildCSS`](https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-css-builder#tasks) | `buildTheme`
 [`war`](https://docs.gradle.org/current/userguide/war_plugin.html#sec:war_default_settings) | `buildTheme`
 
-The `buildCSS` is configured to compile the Sass files contained in the
-directory specified by the [`buildTheme.outputDir`](#outputdir) property.
-Moreover, the `war` task is configured as follows:
+The `buildCSS` dependency compiles the Sass files contained in the directory
+specified by the [`buildTheme.outputDir`](#outputdir) property. Moreover, the
+`war` task is configured as follows
 
 - exclude the directory specified in the [`buildTheme.diffsDir`](#diffsdir)
 property from the WAR file.
 - include the files contained in the [`buildTheme.outputDir`](#outputdir)
 directory into the WAR file.
-- include only the compiled CSS files, and not the SCSS ones, into the WAR file.
+- include only the compiled CSS files, not SCSS files, into the WAR file.
 
 The `buildTheme` task is automatically configured with sensible defaults:
 
@@ -71,7 +73,7 @@ Property Name | Default Value
 ------------- | -------------
 [`diffsDir`](#diffsdir) | `project.webAppDir`
 [`outputDir`](#outputdir) | `"${project.buildDir}/buildTheme"`
-[`parentFile`](#parentfile) | The first JAR file in the [`parentThemes`](#parent-theme-dependencies) configuration that contains a `META-INF/resources/${buildTheme.parentName}` directory.
+[`parentFile`](#parentfile) | The first JAR file in the [`parentThemes`](#parent-theme-dependencies) configuration that contains a `META-INF/resources/${buildTheme.parentName}` directory, or the first WAR file in the `parentThemes` configuration whose name starts with `${parentName}-theme-`.
 [`parentName`](#parentname) | `"_styled"`
 [`templateExtension`](#templateextension) | `"ftl"`
 [`themeName`](#themename) | `project.name`
@@ -121,7 +123,7 @@ manually adding a dependency to the `themeBuilder` configuration:
 
 ```gradle
 dependencies {
-	themeBuilder group: "com.liferay", name: "com.liferay.portal.tools.theme.builder", version: "1.0.0"
+	themeBuilder group: "com.liferay", name: "com.liferay.portal.tools.theme.builder", version: "1.1.4"
 }
 ```
 
@@ -129,8 +131,9 @@ dependencies {
 
 By default, the plugin creates a configuration called `parentThemes` and adds
 dependencies to the latest released versions of the
-[Liferay Frontend Theme Styled](https://github.com/liferay/liferay-portal/tree/master/modules/apps/foundation/frontend-theme/frontend-theme-styled)
-and [Liferay Frontend Theme Unstyled](https://github.com/liferay/liferay-portal/tree/master/modules/apps/foundation/frontend-theme/frontend-theme-unstyled)
+[Liferay Frontend Theme Styled](https://github.com/liferay/liferay-portal/tree/master/modules/apps/foundation/frontend-theme/frontend-theme-styled),
+[Liferay Frontend Theme Unstyled](https://github.com/liferay/liferay-portal/tree/master/modules/apps/foundation/frontend-theme/frontend-theme-unstyled),
+and [Liferay Frontend Theme Classic](https://github.com/liferay/liferay-portal/tree/master/modules/apps/foundation/frontend-theme/frontend-theme-classic)
 artifacts. It is possible to override this setting and use a specific version of
 the artifacts by manually adding dependencies to the `parentThemes`
 configuration:
@@ -139,5 +142,6 @@ configuration:
 dependencies {
 	parentThemes group: "com.liferay", name: "com.liferay.frontend.theme.styled", version: "2.0.13"
 	parentThemes group: "com.liferay", name: "com.liferay.frontend.theme.unstyled", version: "2.0.13"
+	parentThemes group: "com.liferay.plugins", name: "classic-theme", version: "1.0.29"
 }
 ```

@@ -462,6 +462,16 @@ public class JournalArticleLocalServiceUtil {
 		return getService().fetchArticle(groupId, articleId, version);
 	}
 
+	/**
+	* Returns the web content article with the ID.
+	*
+	* @param id the primary key of the web content article
+	* @return the web content article with the ID
+	*/
+	public static com.liferay.journal.model.JournalArticle fetchArticle(long id) {
+		return getService().fetchArticle(id);
+	}
+
 	public static com.liferay.journal.model.JournalArticle fetchArticleByUrlTitle(
 		long groupId, java.lang.String urlTitle) {
 		return getService().fetchArticleByUrlTitle(groupId, urlTitle);
@@ -3705,6 +3715,11 @@ public class JournalArticleLocalServiceUtil {
 		getService().setTreePaths(folderId, treePath, reindex);
 	}
 
+	public static void subscribe(long userId, long groupId, long articleId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService().subscribe(userId, groupId, articleId);
+	}
+
 	/**
 	* Subscribes the user to changes in elements that belong to the web content
 	* article's DDM structure.
@@ -3717,6 +3732,11 @@ public class JournalArticleLocalServiceUtil {
 		long ddmStructureId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().subscribeStructure(groupId, userId, ddmStructureId);
+	}
+
+	public static void unsubscribe(long userId, long groupId, long articleId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService().unsubscribe(userId, groupId, articleId);
 	}
 
 	/**

@@ -119,6 +119,26 @@ else {
 	dlEditFileEntryDisplayContext = dlDisplayContextProvider.getDLEditFileEntryDisplayContext(request, response, fileEntry);
 }
 
+String defaultLanguageId = themeDisplay.getLanguageId();
+
+Locale[] availableLocales = new Locale[] {LocaleUtil.fromLanguageId(defaultLanguageId)};
+
+if (fileEntryTypeId > 0) {
+	DLFileEntryType fileEntryType = DLFileEntryTypeLocalServiceUtil.getFileEntryType(fileEntryTypeId);
+
+	defaultLanguageId = fileEntryType.getDefaultLanguageId();
+
+	String[] availableLanguageIds = fileEntryType.getAvailableLanguageIds();
+
+	if (availableLanguageIds.length > 0) {
+		availableLocales = new Locale[availableLanguageIds.length];
+
+		for (int i = 0; i < availableLanguageIds.length; i++) {
+			availableLocales[i] = LocaleUtil.fromLanguageId(availableLanguageIds[i]);
+		}
+	}
+}
+
 String headerTitle = LanguageUtil.get(request, "new-document");
 
 if (fileVersion != null) {
@@ -256,6 +276,12 @@ if (portletTitleBasedNavigation) {
 
 			<liferay-ui:asset-tags-error />
 
+			<aui:translation-manager
+				availableLocales="<%= availableLocales %>"
+				defaultLanguageId="<%= defaultLanguageId %>"
+				id="translationManager"
+			/>
+
 			<aui:model-context bean="<%= fileVersion %>" model="<%= DLFileVersion.class %>" />
 
 			<aui:fieldset-group markupView="lexicon">
@@ -378,7 +404,7 @@ if (portletTitleBasedNavigation) {
 								</c:otherwise>
 							</c:choose>
 
-							<aui:input name="defaultLanguageId" type="hidden" value="<%= themeDisplay.getLanguageId() %>" />
+							<aui:input name="defaultLanguageId" type="hidden" value="<%= defaultLanguageId %>" />
 
 							<%
 							if (fileEntryTypeId > 0) {
@@ -450,16 +476,16 @@ if (portletTitleBasedNavigation) {
 				</c:if>
 
 				<c:if test="<%= (folder == null) || folder.isSupportsMetadata() %>">
-					<liferay-ui:custom-attributes-available className="<%= DLFileEntryConstants.getClassName() %>">
+					<liferay-expando:custom-attributes-available className="<%= DLFileEntryConstants.getClassName() %>">
 						<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="custom-fields">
-							<liferay-ui:custom-attribute-list
+							<liferay-expando:custom-attribute-list
 								className="<%= DLFileEntryConstants.getClassName() %>"
 								classPK="<%= fileVersionId %>"
 								editable="<%= true %>"
 								label="<%= true %>"
 							/>
 						</aui:fieldset>
-					</liferay-ui:custom-attributes-available>
+					</liferay-expando:custom-attributes-available>
 				</c:if>
 
 				<c:if test="<%= (folder == null) || folder.isSupportsSocial() %>">

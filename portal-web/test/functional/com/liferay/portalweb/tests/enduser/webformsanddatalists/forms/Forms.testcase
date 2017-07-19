@@ -1,5 +1,6 @@
 <definition component-name="portal-web-forms-and-data-lists">
 	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="testray.main.component.name" value="Forms" />
 
 	<set-up>
@@ -81,9 +82,12 @@
 			<var name="portlet" value="Roles" />
 		</execute>
 
-		<execute macro="Role#addCP">
-			<var name="roleTitle" value="Forms Site Role Name" />
+		<execute macro="RoleNavigator#gotoRoleType">
 			<var name="roleType" value="Site" />
+		</execute>
+
+		<execute macro="Role#add">
+			<var name="roleTitle" value="Forms Site Role Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -159,16 +163,17 @@
 
 		<execute macro="Form#save" />
 
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
 		<execute macro="FormsAdmin#viewForm" />
 
 		<execute macro="FormsAdmin#viewNoDuplicateForms" />
 	</command>
 
-	<command name="ConfigureAutocompleteWithManualInput" priority="5">
-		<property name="portal.acceptance" value="pending" />
-		<property name="test.name.skip.portal.instance" value="Forms#ConfigureAutoCompleteWithManualInput" />
-
-		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+	<command name="AddFormWithDuplicateTextFields" priority="4">
+		<description message="This is a use case for LPS-73274." />
 
 		<execute macro="Navigator#openURL" />
 
@@ -180,32 +185,60 @@
 
 		<execute macro="Form#editName" />
 
+		<execute macro="Form#editDescription" />
+
 		<execute macro="Form#gotoAddField">
 			<var name="fieldType" value="Text Field" />
 		</execute>
 
 		<execute macro="Form#editFieldLabel">
-			<var name="fieldValue" value="Text Field With Autocomplete" />
+			<var name="fieldValue" value="Text Field" />
 		</execute>
 
-		<execute macro="Form#gotoAdvancedTab" />
+		<execute macro="FormFields#duplicateField" />
 
-		<execute macro="Form#gotoAutocompleteConfiguration" />
+		<execute macro="Form#closeSidebar" />
 
-		<execute macro="FormFields#selectRadioOption">
-			<var name="fieldName" value="dataSourceType" />
-			<var name="radioOption" value="Manually" />
+		<execute macro="FormsAdminNavigator#gotoEditDuplicateField">
+			<var name="fieldName" value="TextField" />
 		</execute>
 
-		<execute macro="FormFields#editOptionsRow">
-			<var name="optionName" value="One" />
-			<var name="optionValue" value="One" />
+		<execute macro="FormFields#viewFieldName">
+			<var name="fieldName" value="TextField1" />
 		</execute>
 
-		<execute macro="FormFields#editOptionsRow">
-			<var name="optionName" value="Two" />
-			<var name="optionValue" value="Two" />
-			<var name="rowNumber" value="2" />
+		<execute macro="Form#save" />
+	</command>
+
+	<command name="AddFormWithSpanishAsDefaultPortalLanguage" priority="5">
+		<property name="test.name.skip.portal.instance" value="Forms#AddFormWithSpanishAsDefaultPortalLanguage" />
+
+		<execute macro="ProductMenu#gotoControlPanelConfiguration">
+			<var name="portlet" value="Instance Settings" />
+		</execute>
+
+		<execute macro="PortalSettings#configureCurrentLanguagesCP">
+			<var name="defaultPortalLanguage" value="Spanish (Spain)" />
+		</execute>
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#editName" />
+
+		<execute macro="Form#editDescription" />
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Text Field On Spanish Portal" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
@@ -235,46 +268,14 @@
 			<var name="pageName" value="Form Page" />
 		</execute>
 
-		<execute macro="FormFields#editText">
-			<var name="fieldName" value="TextFieldWithAutocomplete" />
-			<var name="fieldValue" value="n" />
-		</execute>
-
-		<execute macro="FormFields#viewAutoCompleteOptions">
-			<var name="autocompleteOption" value="One" />
-			<var name="autocompleteOptionNotVisible" value="Two" />
+		<execute macro="FormFields#viewTextLabel">
+			<var name="fieldLabel" value="Text Field On Spanish Portal" />
+			<var name="fieldName" value="TextFieldOnSpanishPortal" />
 		</execute>
 
 		<execute macro="FormFields#editText">
-			<var name="fieldName" value="TextFieldWithAutocomplete" />
-			<var name="fieldValue" value="T" />
-		</execute>
-
-		<execute macro="FormFields#viewAutoCompleteOptions">
-			<var name="autocompleteOption" value="Two" />
-			<var name="autocompleteOptionNotVisible" value="One" />
-		</execute>
-
-		<execute macro="FormFields#editText">
-			<var name="fieldName" value="TextFieldWithAutocomplete" />
-			<var name="fieldValue" value="O" />
-		</execute>
-
-		<execute macro="FormFields#viewAutoCompleteOptions">
-			<var name="autocompleteOption" value="One" />
-		</execute>
-
-		<execute macro="FormFields#viewAutoCompleteOptions">
-			<var name="autocompleteOption" value="Two" />
-		</execute>
-
-		<execute macro="FormFields#editText">
-			<var name="fieldName" value="TextFieldWithAutocomplete" />
-			<var name="fieldValue" value="On" />
-		</execute>
-
-		<execute macro="FormFields#selectAutoCompleteOption">
-			<var name="autocompleteOption" value="One" />
+			<var name="fieldName" value="TextFieldOnSpanishPortal" />
+			<var name="fieldValue" value="Text Field Value" />
 		</execute>
 
 		<execute macro="FormPortlet#submit" />
@@ -288,13 +289,21 @@
 		<execute macro="FormsAdminNavigator#gotoViewEntries" />
 
 		<execute macro="FormsAdmin#viewFormTableEntry">
-			<var name="fieldLabel" value="Text Field With Autocomplete" />
-			<var name="fieldValue" value="One" />
+			<var name="fieldLabel" value="Text Field On Spanish Portal" />
+			<var name="fieldValue" value="Text Field Value" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoView" />
+
+		<execute macro="FormsAdmin#viewTextEntry">
+			<var name="fieldLabel" value="Text Field On Spanish Portal" />
+			<var name="fieldName" value="TextFieldOnSpanishPortal" />
+			<var name="fieldValue" value="Text Field Value" />
 		</execute>
 	</command>
 
 	<command name="ConfigureAutocompleteWithTextField" priority="5">
-		<property name="portal.acceptance" value="pending" />
+		<property name="portal.acceptance" value="true" />
 		<property name="test.name.skip.portal.instance" value="Forms#ConfigureAutoCompleteWithTextField" />
 
 		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
@@ -310,31 +319,16 @@
 		<execute macro="FormsAdminNavigator#gotoAddDataProvider" />
 
 		<execute macro="FormsAdmin#editDataProvider">
-			<var name="displayedAttribute" value="nameCurrentValue" />
-			<var name="name" value="Countries Full Name" />
+			<var name="name" value="Country Names" />
+			<var name="outputParameterLabel" value="Countries Full Name" />
+			<var name="outputParameterLabel2" value="Countries A2" />
+			<var name="outputParameterName" value="Countries Full Name" />
+			<var name="outputParameterName2" value="Countries A2" />
+			<var name="outputParameterPath" value="nameCurrentValue" />
+			<var name="outputParameterPath2" value="a2" />
+			<var name="outputParameterType" value="List" />
+			<var name="outputParameterType2" value="List" />
 			<var name="password" value="test" />
-			<var name="storedAttribute" value="name" />
-			<var name="url" value="${portalURL}/api/jsonws/country/get-countries" />
-			<var name="username" value="test@liferay.com" />
-		</execute>
-
-		<execute macro="FormsAdmin#saveDataProvider" />
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Forms" />
-		</execute>
-
-		<execute macro="FormsAdminNavigator#gotoDataProviders" />
-
-		<execute macro="FormsAdminNavigator#gotoAddDataProvider" />
-
-		<execute macro="FormsAdmin#editDataProvider">
-			<var name="displayedAttribute" value="a2" />
-			<var name="name" value="Countries A2" />
-			<var name="password" value="test" />
-			<var name="storedAttribute" value="a2" />
 			<var name="url" value="${portalURL}/api/jsonws/country/get-countries" />
 			<var name="username" value="test@liferay.com" />
 		</execute>
@@ -366,7 +360,8 @@
 		<execute macro="Form#gotoAutocompleteConfiguration" />
 
 		<execute macro="Form#editFieldDataProvider">
-			<var name="dataProvider" value="Countries A2" />
+			<var name="dataProvider" value="Country Names" />
+			<var name="dataProviderOutput" value="Countries A2" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
@@ -392,7 +387,8 @@
 		<execute macro="Form#gotoAutocompleteConfiguration" />
 
 		<execute macro="Form#editFieldDataProvider">
-			<var name="dataProvider" value="Countries Full Name" />
+			<var name="dataProvider" value="Country Names" />
+			<var name="dataProviderOutput" value="Countries Full Name" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
@@ -447,6 +443,81 @@
 		</execute>
 	</command>
 
+	<command name="ConfigureAutosave" priority="3">
+		<description message="This is a use case for LPS-68418." />
+		<property name="test.name.skip.portal.instance" value="Forms#ConfigureAutosave" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoControlPanelConfiguration">
+			<var name="portlet" value="System Settings" />
+		</execute>
+
+		<execute macro="SystemSettings#gotoCategory">
+			<var name="category" value="Forms and Workflow" />
+		</execute>
+
+		<execute macro="SystemSettings#editConfiguration">
+			<var name="configurationName" value="Forms" />
+		</execute>
+
+		<execute macro="FormFields#viewTextLabel">
+			<var name="fieldLabel" value="Autosave Interval" />
+			<var name="fieldName" value="autosaveInterval" />
+		</execute>
+
+		<execute macro="FormFields#editText">
+			<var name="fieldName" value="autosaveInterval" />
+			<var name="fieldValue" value="2" />
+		</execute>
+
+		<execute macro="SystemSettings#saveConfiguration" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#editName" />
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Text Field Should Not Be Saved" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute function="Pause" locator1="60000" />
+
+		<execute macro="FormsAdminNavigator#gotoBack" />
+
+		<execute macro="FormsAdmin#viewNoForms" />
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#editName" />
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Text Field Will Be Saved" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute function="Pause" locator1="120000" />
+
+		<execute macro="FormsAdminNavigator#gotoBack" />
+
+		<execute macro="FormsAdminNavigator#gotoEdit" />
+	</command>
+
 	<command name="ConfigureDataProviderWithSelectField" priority="5">
 		<property name="portal.acceptance" value="true" />
 		<property name="test.name.skip.portal.instance" value="Forms#ConfigureDataProviderWithSelectField" />
@@ -464,10 +535,12 @@
 		<execute macro="FormsAdminNavigator#gotoAddDataProvider" />
 
 		<execute macro="FormsAdmin#editDataProvider">
-			<var name="displayedAttribute" value="nameCurrentValue" />
 			<var name="name" value="Liferay Countries" />
+			<var name="outputParameterLabel" value="Country Names" />
+			<var name="outputParameterName" value="Country Names" />
+			<var name="outputParameterPath" value="nameCurrentValue" />
+			<var name="outputParameterType" value="List" />
 			<var name="password" value="test" />
-			<var name="storedAttribute" value="name" />
 			<var name="url" value="${portalURL}/api/jsonws/country/get-countries" />
 			<var name="username" value="test@liferay.com" />
 		</execute>
@@ -496,6 +569,7 @@
 
 		<execute macro="Form#editFieldDataProvider">
 			<var name="dataProvider" value="Liferay Countries" />
+			<var name="dataProviderOutput" value="Country Names" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
@@ -535,7 +609,7 @@
 			<var name="selectOption" value="United States" />
 		</execute>
 
-		<execute macro="FormPortlet#submit" />
+		<execute macro="FormPortlet#submitSuccessfully" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -547,132 +621,7 @@
 
 		<execute macro="FormsAdmin#viewFormTableEntry">
 			<var name="fieldLabel" value="Data Provider Select Field" />
-			<var name="fieldValue" value="united-states" />
-		</execute>
-	</command>
-
-	<command name="ConfigureShowRuleUsingAndCondition" priority="5">
-		<property name="portal.acceptance" value="pending" />
-		<property name="test.name.skip.portal.instance" value="Forms#ConfigureShowRuleUsingAndCondition" />
-
-		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Forms" />
-		</execute>
-
-		<execute macro="FormsAdminNavigator#gotoAddForm" />
-
-		<execute macro="Form#editName" />
-
-		<execute macro="Form#gotoAddField">
-			<var name="fieldType" value="Text Field" />
-		</execute>
-
-		<execute macro="Form#editFieldLabel">
-			<var name="fieldValue" value="Text Field 1" />
-		</execute>
-
-		<execute macro="Form#closeSidebar" />
-
-		<execute macro="Form#gotoAddField">
-			<var name="fieldType" value="Text Field" />
-		</execute>
-
-		<execute macro="Form#editFieldLabel">
-			<var name="fieldValue" value="Text Field 2" />
-		</execute>
-
-		<execute macro="Form#closeSidebar" />
-
-		<execute macro="Form#gotoAddField">
-			<var name="fieldType" value="Date" />
-		</execute>
-
-		<execute macro="Form#editFieldLabel">
-			<var name="fieldValue" value="Date Field" />
-		</execute>
-
-		<execute macro="Form#closeSidebar" />
-
-		<execute macro="FormsAdminNavigator#gotoAddRule" />
-
-		<execute macro="FormRules#selectRuleCondition">
-			<var name="condition" value="and" />
-		</execute>
-
-		<execute macro="FormRules#configureConditionOptions">
-			<var name="conditionField" value="Text Field 1" />=
-			<var name="conditionFieldValue" value="test" />
-			<var name="conditionOperator" value="Is equal to" />
-			<var name="conditionRowNumber" value="1" />
-			<var name="conditionValueType" value="Value" />
-		</execute>
-
-		<execute macro="FormRules#addCondition">
-			<var name="condition" value="AND" />
-			<var name="conditonRowNumber" value="1" />
-		</execute>
-
-		<execute macro="FormRules#configureConditionOptions">
-			<var name="conditionField" value="Text Field 2" />
-			<var name="conditionFieldValue" value="test" />
-			<var name="conditionOperator" value="Is equal to" />
-			<var name="conditionRowNumber" value="2" />
-			<var name="conditionValueType" value="Value" />
-		</execute>
-
-		<execute macro="FormRules#configureActionOptions">
-			<var name="action" value="Show" />
-			<var name="actionRowNumber" value="1" />
-			<var name="actionTarget" value="Date Field" />
-		</execute>
-
-		<execute macro="FormRules#save" />
-
-		<execute macro="FormsAdminNavigator#gotoFormBuilder" />
-
-		<execute macro="Form#save" />
-
-		<execute macro="Page#add">
-			<var name="pageName" value="Form Page" />
-		</execute>
-
-		<execute macro="Portlet#addPG">
-			<var name="pageName" value="Form Page" />
-			<var name="portletName" value="Form" />
-		</execute>
-
-		<execute macro="FormPortletNavigator#gotoSelectForm" />
-
-		<execute macro="FormPortletConfiguration#selectForm" />
-
-		<execute macro="PortletEntry#save" />
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Form Page" />
-		</execute>
-
-		<execute macro="FormFields#editText">
-			<var name="fieldName" value="TextField1" />
-			<var name="fieldValue" value="test" />
-		</execute>
-
-		<execute macro="FormFields#viewDateFieldNotPresent">
-			<var name="fieldLabel" value="Date Field" />
-			<var name="fieldName" value="Date" />
-		</execute>
-
-		<execute macro="FormFields#editText">
-			<var name="fieldName" value="TextField2" />
-			<var name="fieldValue" value="test" />
-		</execute>
-
-		<execute macro="FormFields#viewDateField">
-			<var name="fieldLabel" value="Date Field" />
-			<var name="fieldName" value="Date" />
+			<var name="fieldValue" value="United States" />
 		</execute>
 	</command>
 
@@ -698,6 +647,10 @@
 		<execute macro="Form#closeSidebar" />
 
 		<execute macro="Form#save" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
 
 		<execute macro="FormsAdmin#viewForm">
 			<var name="formDescription" value="" />
@@ -781,7 +734,6 @@
 		</execute>
 
 		<execute macro="FormFields#editDate">
-			<var name="fieldLabel" value="Date Field" />
 			<var name="fieldName" value="DateField" />
 			<var name="fieldValue" value="01/01/2016" />
 		</execute>
@@ -808,6 +760,10 @@
 
 		<execute macro="Form#save" />
 
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
 		<execute macro="Portlet#changeDisplayStyle">
 			<var name="displayStyle" value="Descriptive" />
 		</execute>
@@ -817,6 +773,141 @@
 		<execute macro="FormsAdmin#viewFormTableEntryNotPresent">
 			<var name="fieldLabel" value="Date Field" />
 			<var name="fieldValue" value="1/1/16" />
+		</execute>
+	</command>
+
+	<command name="DeletePages" priority="5">
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#editName" />
+
+		<execute macro="Form#editPageTitle">
+			<var name="formPageName" value="Page 1" />
+		</execute>
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Text Field Page 1" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute macro="Form#addPage" />
+
+		<execute macro="Form#editPageTitle">
+			<var name="formPageName" value="Page 2" />
+		</execute>
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Text Field Page 2" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute macro="Form#addSuccessPage" />
+
+		<execute macro="Form#editSuccessPage">
+			<var name="successPageDescription" value="Thank you for filling out the Form." />
+			<var name="successPageTitle" value="Success Page Title" />
+		</execute>
+
+		<execute macro="Form#deleteCurrentPage">
+			<var name="formPageName" value="Success Page" />
+		</execute>
+
+		<execute macro="Form#deleteCurrentPage">
+			<var name="formPageName" value="Page 2" />
+		</execute>
+
+		<execute macro="FormFields#viewTextField">
+			<var name="fieldLabel" value="Text Field Page 1" />
+			<var name="fieldName" value="TextFieldPage1" />
+		</execute>
+	</command>
+
+	<command name="DeleteSelectFromListOptionValue" priority="3">
+		<description message="This is a use case for LPS-68362." />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#editName" />
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Select from List" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Select" />
+		</execute>
+
+		<for list="1,2,3" param="number">
+			<execute macro="FormFields#editOptionsRow">
+				<var name="optionName" value="Select${number}" />
+				<var name="optionValue" value="Select ${number}" />
+				<var name="rowNumber" value="${number}" />
+			</execute>
+
+			<execute macro="FormFields#viewOptionsRowFieldName">
+				<var name="fieldName" value="Select${number}" />
+				<var name="rowNumber" value="${number}" />
+			</execute>
+		</for>
+
+		<execute macro="FormFields#deleteOptionsRow">
+			<var name="rowNumber" value="3" />
+		</execute>
+
+		<execute macro="FormFields#viewSelectOptionsRowFieldValue">
+			<var name="fieldValue" value="Select 1" />
+			<var name="rowNumber" value="1" />
+		</execute>
+
+		<execute macro="FormFields#viewSelectOptionsRowFieldValue">
+			<var name="fieldValue" value="Select 2" />
+			<var name="rowNumber" value="2" />
+		</execute>
+
+		<execute macro="FormFields#viewDeletedSelectOptionsRowFieldValue">
+			<var name="fieldValue" value="Select 3" />
+			<var name="rowNumber" value="3" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute macro="FormsAdminNavigator#gotoEditField">
+			<var name="fieldName" value="Select" />
+		</execute>
+
+		<execute macro="FormFields#viewSelectOptionsRowFieldValue">
+			<var name="fieldValue" value="Select 1" />
+			<var name="rowNumber" value="1" />
+		</execute>
+
+		<execute macro="FormFields#viewSelectOptionsRowFieldValue">
+			<var name="fieldValue" value="Select 2" />
+			<var name="rowNumber" value="2" />
+		</execute>
+
+		<execute macro="FormFields#viewDeletedSelectOptionsRowFieldValue">
+			<var name="fieldValue" value="Select 3" />
+			<var name="rowNumber" value="3" />
 		</execute>
 	</command>
 
@@ -1034,98 +1125,11 @@
 		<execute macro="Form#closeSidebar" />
 
 		<execute macro="Form#save" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Forms" />
-		</execute>
-
-		<execute macro="FormsAdminNavigator#gotoEdit">
-			<var name="formName" value="Created Form Name" />
-		</execute>
-
-		<execute macro="FormsAdminNavigator#gotoEditField">
-			<var name="fieldName" value="Paragraph" />
-		</execute>
-
-		<execute macro="FormFields#viewFieldName">
-			<var name="fieldName" value="ParagraphName" />
-		</execute>
-
-		<execute macro="Form#closeSidebar" />
-
-		<execute macro="FormsAdminNavigator#gotoEditField">
-			<var name="fieldName" value="Text" />
-		</execute>
-
-		<execute macro="FormFields#viewFieldName">
-			<var name="fieldName" value="TextName" />
-		</execute>
-
-		<execute macro="Form#closeSidebar" />
-
-		<execute macro="FormsAdminNavigator#gotoEditField">
-			<var name="fieldName" value="Select" />
-		</execute>
-
-		<execute macro="FormFields#viewFieldName">
-			<var name="fieldName" value="SelectName" />
-		</execute>
-
-		<execute macro="FormFields#viewOptionsRowFieldName">
-			<var name="fieldName" value="Select1Name" />
-		</execute>
-
-		<execute macro="FormFields#viewOptionsRowFieldName">
-			<var name="fieldName" value="Select2Name" />
-			<var name="rowNumber" value="2" />
-		</execute>
-
-		<execute macro="Form#closeSidebar" />
-
-		<execute macro="FormsAdminNavigator#gotoEditField">
-			<var name="fieldName" value="Radio" />
-		</execute>
-
-		<execute macro="FormFields#viewFieldName">
-			<var name="fieldName" value="RadioName" />
-		</execute>
-
-		<execute macro="FormFields#viewOptionsRowFieldName">
-			<var name="fieldName" value="Option1Name" />
-		</execute>
-
-		<execute macro="FormFields#viewOptionsRowFieldName">
-			<var name="fieldName" value="Option2Name" />
-			<var name="rowNumber" value="2" />
-		</execute>
-
-		<execute macro="Form#closeSidebar" />
-
-		<execute macro="FormsAdminNavigator#gotoEditField">
-			<var name="fieldName" value="Date" />
-		</execute>
-
-		<execute macro="FormFields#viewFieldName">
-			<var name="fieldName" value="DateName" />
-		</execute>
-
-		<execute macro="Form#closeSidebar" />
-
-		<execute macro="FormsAdminNavigator#gotoEditField">
-			<var name="fieldName" value="Checkbox" />
-		</execute>
-
-		<execute macro="FormFields#viewFieldName">
-			<var name="fieldName" value="CheckboxName" />
-		</execute>
-
-		<execute macro="Form#closeSidebar" />
-
-		<execute macro="Form#save" />
 	</command>
 
 	<command name="EditAllFormFieldsTypesUsedBySystemSettings" priority="4">
 		<description message="This is a use case for LPS-50757." />
+		<property name="test.name.skip.portal.instance" value="Forms#EditAllFormFieldsTypesUsedBySystemSettings" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -1285,12 +1289,11 @@
 			<var name="fieldName" value="ds.lock.timeout.milliseconds" />
 		</execute>
 
-		<execute macro="FormFields#editText">
+		<execute macro="FormFields#editTextWithBackspace">
 			<var name="fieldName" value="ds.lock.timeout.milliseconds" />
-			<var name="fieldValue" value="" />
 		</execute>
 
-		<execute macro="Button#clickSave" />
+		<execute macro="Button#clickUpdate" />
 
 		<execute macro="FormFields#viewFieldValidationErrorMessage">
 			<var name="fieldName" value="ds.lock.timeout.milliseconds" />
@@ -1299,19 +1302,33 @@
 
 		<execute macro="SystemSettings#exitEditConfiguration" />
 
+		<execute macro="SystemSettings#gotoCategory">
+			<var name="category" value="Foundation" />
+		</execute>
+
 		<execute macro="SystemSettings#editConfiguration">
 			<var name="configurationName" value="JavaScript Loader" />
 		</execute>
 
-		<execute macro="FormFields#viewTextMultilineField">
-			<var name="fieldLabel" value="Global JSVariable" />
-			<var name="fieldName" value="globalJSVariable" />
+		<execute macro="FormFields#viewCheckboxLabel">
+			<var name="fieldLabel" value="Apply versioning" />
+			<var name="fieldName" value="applyVersioning" />
 		</execute>
 
-		<execute macro="FormFields#editTextMultiline">
-			<var name="fieldName" value="globalJSVariable" />
-			<var name="fieldValue" value="LIFERAY" />
+		<execute macro="FormFields#viewCheckboxLabel">
+			<var name="fieldLabel" value="Expose global" />
+			<var name="fieldName" value="exposeGlobal" />
 		</execute>
+
+		<for list="applyVersioning,exposeGlobal" param="fieldName">
+			<execute macro="FormFields#viewCheckboxChecked">
+				<var name="fieldName" value="${fieldName}" />
+			</execute>
+
+			<execute macro="FormFields#disableCheckbox">
+				<var name="fieldName" value="${fieldName}" />
+			</execute>
+		</for>
 
 		<execute macro="SystemSettings#saveConfiguration" />
 
@@ -1319,21 +1336,23 @@
 			<var name="configurationName" value="JavaScript Loader" />
 		</execute>
 
-		<execute macro="FormFields#viewTextMultilineValue">
-			<var name="fieldName" value="globalJSVariable" />
-			<var name="fieldValue" value="LIFERAY" />
-		</execute>
+		<for list="applyVersioning,exposeGlobal" param="fieldName">
+			<execute macro="FormFields#viewCheckboxNotChecked">
+				<var name="fieldName" value="${fieldName}" />
+			</execute>
+		</for>
 
 		<execute macro="SystemSettings#exitEditConfiguration" />
 
 		<execute macro="SystemSettings#resetConfiguration">
-			<var name="category" value="Other" />
+			<var name="category" value="Foundation" />
 			<var name="configurationName" value="JavaScript Loader" />
 		</execute>
 	</command>
 
 	<command name="EditFormsConfigurationViaSystemSettings" priority="3">
 		<description message="This is a use case for LPS-59749" />
+		<property name="test.name.skip.portal.instance" value="Forms#EditFormsConfigurationViaSystemSettings" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
 			<var name="portlet" value="Forms" />
@@ -1388,6 +1407,101 @@
 		</execute>
 	</command>
 
+	<command name="EditFormWithUpdatedSiteAndUserLocale" priority="2">
+		<description message="This is a use case for LPS-69100 and LPS-69334." />
+
+		<property name="test.name.skip.portal.instance" value="Forms#EditFormWithUpdatedSiteAndUserLocale" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#editName" />
+
+		<execute macro="Form#editDescription" />
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute macro="Form#save" />
+
+		<execute macro="ProductMenu#gotoUserMyAccount">
+			<var name="portlet" value="Account Settings" />
+		</execute>
+
+		<execute macro="MyAccount#changeUserLanguage">
+			<var name="languageName" value="español (España)" />
+			<var name="saveButton" value="Save" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoLocalizedSitesAdministration">
+			<var name="category" value="Contenido" />
+			<var name="portlet" value="Formularios" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoEditFormByName" />
+
+		<execute macro="Form#editNameLocalized">
+			<var name="formName" value="User Locale Edit Form Name" />
+			<var name="localizedText" value="Editor de texto enriquecido" />
+		</execute>
+
+		<execute macro="Form#editDescription">
+			<var name="formDescription" value="User Locale Edit Form Description" />
+		</execute>
+
+		<execute macro="Form#saveLocalized">
+			<var name="saveButton" value="Guardar formulario" />
+		</execute>
+
+		<execute macro="MyAccount#configureDisplaySettingsLanguageLocalized">
+			<var name="category" value="Mi cuenta" />
+			<var name="languageName" value="English (United States)" />
+			<var name="portlet" value="Mi cuenta" />
+			<var name="saveButton" value="Guardar" />
+		</execute>
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Site Settings" />
+		</execute>
+
+		<execute macro="Site#configureCurrentLanguagesCP">
+			<var name="defaultSiteLanguage" value="Spanish (Spain)" />
+			<var name="displaySettings" value="Display Settings" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoEditFormByName">
+			<var name="formName" value="User Locale Edit Form Name" />
+		</execute>
+
+		<execute macro="Form#editName">
+			<var name="formName" value="Site Locale Edit Form Name" />
+		</execute>
+
+		<execute macro="Form#editDescription">
+			<var name="formDescription" value="Site Locale Edit Form Description" />
+		</execute>
+
+		<execute macro="Form#save" />
+	</command>
+
 	<command name="NavigateToCorrectForm" priority="5">
 		<description message="This is a use case for LPS-59331" />
 		<property name="portal.acceptance" value="true" />
@@ -1416,15 +1530,11 @@
 
 		<execute macro="Form#save" />
 
-		<execute macro="FormsAdminNavigator#gotoEditFormByName">
-			<var name="formName" value="Text" />
-		</execute>
-
 		<execute macro="Form#viewFormName">
 			<var name="formName" value="Text" />
 		</execute>
 
-		<execute macro="Navigator#gotoBack" />
+		<execute macro="FormsAdminNavigator#gotoBack" />
 
 		<execute macro="FormsAdminNavigator#gotoAddForm" />
 
@@ -1450,15 +1560,11 @@
 
 		<execute macro="Form#save" />
 
-		<execute macro="FormsAdminNavigator#gotoEditFormByName">
-			<var name="formName" value="Checkbox" />
-		</execute>
-
 		<execute macro="Form#viewFormName">
 			<var name="formName" value="Checkbox" />
 		</execute>
 
-		<execute macro="Navigator#gotoBack" />
+		<execute macro="FormsAdminNavigator#gotoBack" />
 
 		<execute macro="FormsAdminNavigator#gotoEditFormByName">
 			<var name="formName" value="Text" />
@@ -1531,7 +1637,7 @@
 
 		<execute macro="FormsAdminNavigator#gotoEditFormByName" />
 
-		<execute macro="FormsAdminNavigator#gotoPublish" />
+		<execute macro="Form#publishForm" />
 
 		<execute macro="FormsAdminNavigator#gotoPreviewForm" />
 
@@ -1550,12 +1656,6 @@
 		</execute>
 
 		<execute macro="FormsAdminNavigator#gotoEditFormByName" />
-
-		<execute macro="FormsAdminNavigator#gotoPublish" />
-
-		<execute macro="Form#clickPublishSwitcher" />
-
-		<execute macro="Button#clickConfirm" />
 
 		<execute macro="Form#submitFormPublish">
 			<var name="fieldLabel" value="Text Field" />
@@ -1584,12 +1684,6 @@
 
 		<execute macro="FormsAdminNavigator#gotoEditFormByName" />
 
-		<execute macro="FormsAdminNavigator#gotoPublish" />
-
-		<execute macro="Form#clickPublishSwitcher" />
-
-		<execute macro="Button#clickConfirm" />
-
 		<execute macro="Form#viewFormNotPublished" />
 	</command>
 
@@ -1606,7 +1700,7 @@
 			<var name="fieldType" value="Multiple Selection" />
 		</execute>
 
-		<for list="1,2,3" param="number">
+		<for list="1,2,3,4" param="number">
 			<execute macro="FormFields#editOptionsRow">
 				<var name="optionName" value="Checkbox${number}" />
 				<var name="optionValue" value="Checkbox ${number}" />
@@ -1639,23 +1733,33 @@
 			<var name="rowNumber" value="3" />
 		</execute>
 
+		<execute macro="FormFields#viewOptionsRowFieldValue">
+			<var name="fieldValue" value="Checkbox 4" />
+			<var name="rowNumber" value="4" />
+		</execute>
+
 		<execute macro="FormFields#deleteOptionsRow">
 			<var name="rowNumber" value="2" />
 		</execute>
 
 		<execute macro="FormFields#moveOptionsRow">
-			<var name="rowNumberEnd" value="1" />
-			<var name="rowNumberStart" value="2" />
-		</execute>
-
-		<execute macro="FormFields#viewOptionsRowFieldValue">
-			<var name="fieldValue" value="Checkbox 2" />
-			<var name="rowNumber" value="1" />
+			<var name="rowNumberEnd" value="2" />
+			<var name="rowNumberStart" value="3" />
 		</execute>
 
 		<execute macro="FormFields#viewOptionsRowFieldValue">
 			<var name="fieldValue" value="Checkbox 3" />
+			<var name="rowNumber" value="1" />
+		</execute>
+
+		<execute macro="FormFields#viewOptionsRowFieldValue">
+			<var name="fieldValue" value="Checkbox 4" />
 			<var name="rowNumber" value="2" />
+		</execute>
+
+		<execute macro="FormFields#viewOptionsRowFieldValue">
+			<var name="fieldValue" value="Checkbox 2" />
+			<var name="rowNumber" value="3" />
 		</execute>
 	</command>
 
@@ -1920,6 +2024,7 @@
 	</command>
 
 	<command name="SubmitFormAndViewEmailNotification" priority="4">
+		<property name="test.name.skip.portal.instance" value="Forms#SubmitFormAndViewEmailNotification" />
 		<property name="test.smtp.server.enabled" value="true" />
 
 		<execute macro="Navigator#openURL" />
@@ -2014,8 +2119,9 @@
 
 	<command name="SubmitFormContainingCaptchaAndViewTextFieldValue" priority="5">
 		<description message="This is a use case for LPS-60818." />
-		<property name="custom.properties" value="captcha.max.challenges=0" />
-		<property name="portal.acceptance" value="true" />
+		<property name="osgi.module.configuration.file.names" value="com.liferay.captcha.configuration.CaptchaConfiguration.config" />
+		<property name="osgi.module.configurations" value="maxChallenges=&quot;0&quot;" />
+		<property name="portal.acceptance" value="quarantine" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -2045,18 +2151,14 @@
 
 		<execute macro="Form#save" />
 
-		<execute macro="FormsAdminNavigator#gotoEdit" />
+		<execute macro="Form#publishForm" />
 
-		<execute macro="FormsAdminNavigator#gotoPublish" />
-
-		<execute macro="Form#clickPublishSwitcher" />
+		<execute macro="FormsAdminNavigator#gotoPublishCopyURLLink" />
 
 		<execute macro="Form#getPublishedFormPublicURL">
 			<return from="publicURL" name="publishedFormPublicURL" />
 			<var name="publishedFormPublicURL" value="${publishedFormPublicURL}" />
 		</execute>
-
-		<execute macro="Button#clickConfirm" />
 
 		<execute macro="Form#save" />
 
@@ -2125,7 +2227,8 @@
 	</command>
 
 	<command name="SubmitFormWithAllFieldTypesAfterEditingFields" priority="5">
-		<property name="portal.acceptance" value="true" />
+		<property name="portal.acceptance" value="quarantine" />
+		<property name="testray.component.names" value="Training" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -2442,7 +2545,6 @@
 		</execute>
 
 		<execute macro="FormFields#editDate">
-			<var name="fieldLabel" value="New Date" />
 			<var name="fieldName" value="Date" />
 			<var name="fieldValue" value="05/02/2016" />
 		</execute>
@@ -2485,7 +2587,7 @@
 		<execute macro="FormsAdmin#viewRadioEntry">
 			<var name="fieldLabel" value="New Radio" />
 			<var name="fieldName" value="Radio" />
-			<var name="fieldValue" value="New Option 1" />
+			<var name="fieldValue" value="Option 1" />
 		</execute>
 
 		<execute macro="FormsAdmin#viewDateEntry">
@@ -2498,11 +2600,95 @@
 			<var name="fieldLabel" value="New Checkbox" />
 			<var name="fieldName" value="Checkbox" />
 		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="LAR#exportPortlet">
+			<var name="larFileName" value="FormsExport.lar" />
+		</execute>
+
+		<execute function="Pause" locator1="5000" />
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Site#addBlankCP">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Page#add">
+			<var name="pageName" value="Site Page Name" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="LAR#importPortlet">
+			<var name="larFileName" value="FormsExport.lar" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoViewEntries" />
+
+		<execute macro="FormsAdminNavigator#gotoView" />
+
+		<execute macro="FormFields#viewParagraphField">
+			<var name="fieldTitle" value="New Paragraph" />
+			<var name="fieldValue" value="New Paragraph body text." />
+		</execute>
+
+		<execute macro="FormsAdmin#viewTextEntry">
+			<var name="fieldLabel" value="New Text" />
+			<var name="fieldName" value="NewText" />
+			<var name="fieldValue" value="Text" />
+		</execute>
+
+		<execute macro="FormsAdmin#viewSelectEntry">
+			<var name="fieldLabel" value="New Select" />
+			<var name="fieldName" value="NewSelect" />
+			<var name="selectOption" value="New Select 2" />
+		</execute>
+
+		<execute macro="FormsAdmin#viewRadioEntry">
+			<var name="fieldLabel" value="New Radio" />
+			<var name="fieldName" value="NewRadio" />
+			<var name="fieldValue" value="New Option 1" />
+		</execute>
+
+		<execute macro="FormsAdmin#viewDateEntry">
+			<var name="fieldLabel" value="New Date" />
+			<var name="fieldName" value="NewDate" />
+			<var name="fieldValue" value="05/02/2016" />
+		</execute>
+
+		<execute macro="FormsAdmin#viewCheckboxEntry">
+			<var name="fieldLabel" value="New Checkbox" />
+			<var name="fieldName" value="NewCheckbox" />
+		</execute>
 	</command>
 
-	<command name="SubmitFormWithAllFieldTypesAndTwoPages" priority="5">
+	<command name="SubmitFormWithAllFieldTypesAndThreePages" priority="5">
 		<description message="This is a use case for LPS-64798." />
-		<property name="portal.acceptance" value="true" />
+
+		<property name="portal.acceptance" value="quarantine" />
+		<property name="testray.component.names" value="Training" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -2654,6 +2840,34 @@
 
 		<execute macro="Form#closeSidebar" />
 
+		<execute macro="Form#addPage" />
+
+		<execute macro="Form#editPageTitle">
+			<var name="formPageName" value="Page 3" />
+		</execute>
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Multiple Selection" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Checkbox Page 3" />
+		</execute>
+
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Checkbox1" />
+			<var name="optionValue" value="Checkbox 1" />
+			<var name="rowNumber" value="1" />
+		</execute>
+
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Checkbox2" />
+			<var name="optionValue" value="Checkbox 2" />
+			<var name="rowNumber" value="2" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
 		<execute macro="Form#save" />
 
 		<execute macro="Page#add">
@@ -2705,7 +2919,6 @@
 		</execute>
 
 		<execute macro="FormFields#editDate">
-			<var name="fieldLabel" value="Date" />
 			<var name="fieldName" value="Date" />
 			<var name="fieldValue" value="05/02/2016" />
 		</execute>
@@ -2723,6 +2936,16 @@
 		<execute macro="FormFields#editText">
 			<var name="fieldName" value="SingleLineText2" />
 			<var name="fieldValue" value="SingleLineText2" />
+		</execute>
+
+		<execute macro="FormPortlet#nextPage">
+			<var name="formPageCurrent" value="Page 2" />
+			<var name="formPageNext" value="Page 3" />
+		</execute>
+
+		<execute macro="FormFields#selectCheckboxOption">
+			<var name="checkboxOption" value="Checkbox 1" />
+			<var name="fieldName" value="CheckboxPage3" />
 		</execute>
 
 		<execute macro="FormPortlet#submit" />
@@ -2787,6 +3010,16 @@
 			<var name="fieldName" value="SingleLineText2" />
 			<var name="fieldValue" value="SingleLineText2" />
 		</execute>
+
+		<execute macro="FormPortlet#nextPage">
+			<var name="formPageCurrent" value="Page 2" />
+			<var name="formPageNext" value="Page 3" />
+		</execute>
+
+		<execute macro="FormsAdmin#viewCheckboxEntry">
+			<var name="fieldLabel" value="Checkbox Page 3" />
+			<var name="fieldName" value="CheckboxPage3" />
+		</execute>
 	</command>
 
 	<command name="SubmitFormWithCustomTextContainingValidation" priority="5">
@@ -2822,7 +3055,6 @@
 			<var name="validationArgument" value="Contains" />
 			<var name="validationErrorMessage" value="Text must contain &apos;&apos;Test&apos;&apos;" />
 			<var name="validationInput" value="Test" />
-			<var name="validationType" value="Text" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
@@ -2887,6 +3119,94 @@
 			<var name="fieldLabel" value="Text" />
 			<var name="fieldValue" value="test" />
 		</execute>
+	</command>
+
+	<command name="SubmitFormWithGridField" priority="5">
+		<property name="portal.acceptance" value="pending" />
+
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#editName" />
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Grid" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Grid Field Survey" />
+		</execute>
+
+		<for list="1,2,3" param="optionNumber">
+			<execute macro="FormFields#editGridOptions">
+				<var name="gridField" value="row" />
+				<var name="optionValue" value="Option ${optionNumber}" />
+				<var name="rowNumber" value="${optionNumber}" />
+			</execute>
+		</for>
+
+		<for list="1,2,3" param="optionNumber">
+			<execute macro="FormFields#editGridOptions">
+				<var name="gridField" value="column" />
+				<var name="optionValue" value="Category ${optionNumber}" />
+				<var name="rowNumber" value="${optionNumber}" />
+			</execute>
+		</for>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute macro="Form#save" />
+
+		<execute macro="Page#add">
+			<var name="pageName" value="Form Page" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="pageName" value="Form Page" />
+			<var name="portletName" value="Form" />
+		</execute>
+
+		<execute macro="FormPortletNavigator#gotoSelectForm" />
+
+		<execute macro="FormPortletConfiguration#selectForm" />
+
+		<execute macro="PortletEntry#save" />
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Form Page" />
+		</execute>
+
+		<for list="1,2,3" param="optionNumber">
+			<execute macro="FormFields#selectGridRadioOption">
+				<var name="categoryColumnName" value="Category${optionNumber}" />
+				<var name="optionRowName" value="Option${optionNumber}" />
+			</execute>
+		</for>
+
+		<execute macro="FormPortlet#submit" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoViewEntries" />
+
+		<for list="1,2,3" param="optionNumber">
+			<execute macro="FormsAdmin#viewFormGridFieldTableEntry">
+				<var name="categoryColumnLabel" value="Category ${optionNumber}" />
+				<var name="fieldLabel" value="Grid Field Survey" />
+				<var name="optionRowLabel" value="Option ${optionNumber}" />
+			</execute>
+		</for>
 	</command>
 
 	<command name="SubmitFormWithMultipleFieldsAndViewEntriesViaDescriptiveDisplay" priority="4">
@@ -3222,7 +3542,9 @@
 			<var name="fieldValue" value="Approved" />
 		</execute>
 
-		<execute macro="FormsAdminNavigator#gotoView" />
+		<execute macro="FormsAdminNavigator#gotoView">
+			<var name="rowIndexNumber" value="2" />
+		</execute>
 
 		<execute macro="FormsAdmin#viewParagraphEntry">
 			<var name="fieldName" value="paragraph" />
@@ -3594,8 +3916,11 @@
 		</execute>
 	</command>
 
-	<command name="SubmitFormWithRequiredTextField" priority="4">
+	<command name="SubmitFormWithRequiredTextField" priority="5">
 		<description message="This is a use case for LPS-58829." />
+
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -3779,9 +4104,7 @@
 		</execute>
 	</command>
 
-	<command name="SubmitFormWithTextField" priority="5">
-		<property name="portal.acceptance" value="true" />
-
+	<command name="SubmitFormWithTextField" priority="4">
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -3863,8 +4186,8 @@
 		</execute>
 	</command>
 
-	<command name="SubmitFormWithThreePages" priority="5">
-		<property name="portal.acceptance" value="true" />
+	<command name="ViewAltSuccessPagePagination" priority="2">
+		<description message="This is a use case for LPS-71485 and LPS-71512." />
 
 		<execute macro="Navigator#openURL" />
 
@@ -3887,7 +4210,7 @@
 		</execute>
 
 		<execute macro="Form#editFieldLabel">
-			<var name="fieldValue" value="Text" />
+			<var name="fieldValue" value="Text Field" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
@@ -3899,147 +4222,54 @@
 		</execute>
 
 		<execute macro="Form#gotoAddField">
-			<var name="fieldType" value="Single Selection" />
-		</execute>
-
-		<execute macro="FormFields#editText">
-			<var name="fieldName" value="label" />
-			<var name="fieldValue" value="Radio" />
-		</execute>
-
-		<execute macro="FormFields#viewFieldName">
-			<var name="fieldName" value="Radio" />
-		</execute>
-
-		<execute macro="FormFields#editOptionsRow">
-			<var name="optionName" value="Option1" />
-			<var name="optionValue" value="Option 1" />
-		</execute>
-
-		<execute macro="FormFields#editOptionsRow">
-			<var name="optionName" value="Option2" />
-			<var name="optionValue" value="Option 2" />
-			<var name="rowNumber" value="2" />
-		</execute>
-
-		<execute macro="Form#closeSidebar" />
-
-		<execute macro="Form#addPage" />
-
-		<execute macro="Form#editPageTitle">
-			<var name="formPageName" value="Page 3" />
-		</execute>
-
-		<execute macro="Form#gotoAddField">
-			<var name="fieldType" value="Multiple Selection" />
+			<var name="fieldType" value="Text Field" />
 		</execute>
 
 		<execute macro="Form#editFieldLabel">
-			<var name="fieldValue" value="Checkbox" />
-		</execute>
-
-		<execute macro="FormFields#editOptionsRow">
-			<var name="optionName" value="Checkbox1" />
-			<var name="optionValue" value="Checkbox 1" />
-			<var name="rowNumber" value="1" />
-		</execute>
-
-		<execute macro="FormFields#editOptionsRow">
-			<var name="optionName" value="Checkbox2" />
-			<var name="optionValue" value="Checkbox 2" />
-			<var name="rowNumber" value="2" />
+			<var name="fieldValue" value="Text2" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
 
+		<execute macro="Form#addSuccessPage" />
+
+		<execute macro="Form#editSuccessPage">
+			<var name="successPageDescription" value="Thank you for filling out the Form." />
+			<var name="successPageTitle" value="Success Page Title" />
+		</execute>
+
+		<execute macro="Form#switchPaginationMode" />
+
+		<execute macro="Form#viewAltPagePagination">
+			<var name="page" value="2" />
+		</execute>
+
+		<execute macro="Form#viewAltSuccessPagePagination" />
+
+		<execute macro="Form#gotoPageAltPagination">
+			<var name="page" value="1" />
+		</execute>
+
+		<execute macro="FormFields#viewTextField">
+			<var name="fieldLabel" value="Text Field" />
+			<var name="fieldName" value="TextField" />
+		</execute>
+
 		<execute macro="Form#save" />
 
-		<execute macro="Page#add">
-			<var name="pageName" value="Form Page" />
+		<execute macro="Form#viewAltPagePagination">
+			<var name="page" value="2" />
 		</execute>
 
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Form Page" />
+		<execute macro="Form#viewAltSuccessPagePagination" />
+
+		<execute macro="Form#gotoPageAltPagination">
+			<var name="page" value="1" />
 		</execute>
 
-		<execute macro="Portlet#addPG">
-			<var name="pageName" value="Form Page" />
-			<var name="portletName" value="Form" />
-		</execute>
-
-		<execute macro="FormPortletNavigator#gotoSelectForm" />
-
-		<execute macro="FormPortletConfiguration#selectForm" />
-
-		<execute macro="PortletEntry#save" />
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Form Page" />
-		</execute>
-
-		<execute macro="FormFields#viewTextLabel">
-			<var name="fieldLabel" value="Text" />
-			<var name="fieldName" value="Text" />
-		</execute>
-
-		<execute macro="FormFields#editText">
-			<var name="fieldName" value="Text" />
-			<var name="fieldValue" value="Text Field Value" />
-		</execute>
-
-		<execute macro="FormPortlet#nextPage">
-			<var name="formPageCurrent" value="Page 1" />
-			<var name="formPageNext" value="Page 2" />
-		</execute>
-
-		<execute macro="FormFields#viewRadioLabel">
-			<var name="fieldLabel" value="Radio" />
-			<var name="fieldName" value="Radio" />
-		</execute>
-
-		<execute macro="FormFields#selectRadioOption">
-			<var name="fieldName" value="Radio" />
-			<var name="radioOption" value="Option 2" />
-		</execute>
-
-		<execute macro="FormPortlet#nextPage">
-			<var name="formPageCurrent" value="Page 2" />
-			<var name="formPageNext" value="Page 3" />
-		</execute>
-
-		<execute macro="FormFields#viewCheckboxLabel">
-			<var name="fieldLabel" value="Checkbox" />
-			<var name="fieldName" value="Checkbox" />
-		</execute>
-
-		<execute macro="FormFields#selectCheckboxOption">
-			<var name="checkboxOption" value="Checkbox 1" />
-			<var name="fieldName" value="Checkbox" />
-		</execute>
-
-		<execute macro="FormPortlet#submit" />
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Forms" />
-		</execute>
-
-		<execute macro="FormsAdminNavigator#gotoViewEntries" />
-
-		<execute macro="FormsAdmin#viewFormTableEntry">
-			<var name="fieldLabel" value="Text" />
-			<var name="fieldValue" value="Text Field Value" />
-		</execute>
-
-		<execute macro="FormsAdmin#viewFormTableEntry">
-			<var name="fieldLabel" value="Radio" />
-			<var name="fieldValue" value="Option 2" />
-		</execute>
-
-		<execute macro="FormsAdmin#viewFormTableEntry">
-			<var name="fieldLabel" value="Checkbox" />
-			<var name="fieldValue" value="Checkbox 1" />
+		<execute macro="FormFields#viewTextField">
+			<var name="fieldLabel" value="Text Field" />
+			<var name="fieldName" value="TextField" />
 		</execute>
 	</command>
 
@@ -4078,6 +4308,8 @@
 			<var name="fieldName" value="One" />
 		</execute>
 
+		<execute macro="Form#closeSidebar" />
+
 		<execute macro="Form#gotoAddField">
 			<var name="fieldType" value="Text Field" />
 		</execute>
@@ -4089,6 +4321,40 @@
 		<execute macro="FormFields#viewFieldLabel">
 			<var name="fieldName" value="label" />
 			<var name="fieldValue" value="" />
+		</execute>
+	</command>
+
+	<command name="ViewConfirmationWhenLeavingFormWithoutSaving" priority="3">
+		<description message="This is a use case for LPS-69214." />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute macro="Navigator#gotoBack" />
+
+		<execute function="AssertElementPresent" locator1="Button#LEAVE" />
+
+		<execute function="Click" locator1="Button#STAY" />
+
+		<execute macro="Form#save" />
+
+		<execute macro="Navigator#gotoBack" />
+
+		<execute macro="FormsAdminNavigator#gotoEdit">
+			<var name="formName" value="Untitled Form" />
 		</execute>
 	</command>
 
@@ -4113,7 +4379,7 @@
 
 		<execute macro="FormFields#editText">
 			<var name="fieldName" value="label" />
-			<var name="fieldValue" value=",.?/;:{}[]\|-+!@#$%^*()=_" />
+			<var name="fieldValue" value=",-+!@#$%^*()=_.?/;:{}[]\|" />
 		</execute>
 
 		<execute macro="FormFields#viewFieldName">
@@ -4121,11 +4387,7 @@
 		</execute>
 
 		<execute macro="FormFields#editFieldName">
-			<var name="fieldValue" value=",.?/;:{}[]\|-+!@#$%^*()=_" />
-		</execute>
-
-		<execute macro="FormFields#viewFieldName">
-			<var name="fieldName" value="text" />
+			<var name="fieldValue" value=",-+!@#$%^*()=_.?/;:{}[]\|" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
@@ -4139,16 +4401,8 @@
 			<var name="fieldValue" value="Jump, She exclaimed!" />
 		</execute>
 
-		<execute macro="FormFields#viewFieldName">
-			<var name="fieldName" value="JumpSheExclaimed" />
-		</execute>
-
 		<execute macro="FormFields#editFieldName">
 			<var name="fieldValue" value="Jump, She exclaimed!" />
-		</execute>
-
-		<execute macro="FormFields#viewFieldName">
-			<var name="fieldName" value="JumpSheExclaimed" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
@@ -4179,13 +4433,13 @@
 		</execute>
 
 		<execute macro="FormFields#viewTextField">
-			<var name="fieldLabel" value=",.?/;:{}[]\|-+!@#$%^*()=_" />
+			<var name="fieldLabel" value=",-+!@#$%^*()=_.?/;:{}[]\|" />
 			<var name="fieldName" value="text" />
 		</execute>
 
 		<execute macro="FormFields#viewTextField">
 			<var name="fieldLabel" value="Jump, She exclaimed!" />
-			<var name="fieldName" value="JumpSheExclaimed" />
+			<var name="fieldName" value="JumpSheexclaimed" />
 		</execute>
 
 		<execute macro="FormFields#editText">
@@ -4194,8 +4448,8 @@
 		</execute>
 
 		<execute macro="FormFields#editText">
-			<var name="fieldName" value="JumpSheExclaimed" />
-			<var name="fieldValue" value=",.?/;:{}[]\|-+!@#$%^*()=_" />
+			<var name="fieldName" value="JumpSheexclaimed" />
+			<var name="fieldValue" value=",-+!@#$%^*()=_.?/;:{}[]\|" />
 		</execute>
 
 		<execute macro="FormPortlet#submitSuccessfully" />
@@ -4353,8 +4607,41 @@
 		</execute>
 	</command>
 
-	<command name="ViewTextFieldWithConditionalVisibility" priority="3">
-		<description message="This is a use case for LPS-59604." />
+	<command name="ViewSaveNotification" priority="3">
+		<description message="This is a use case for LPS-68390." />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#editName" />
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute function="Pause" locator1="60000" />
+
+		<execute macro="Form#viewSaveNotification" />
+
+		<execute macro="FormsAdminNavigator#gotoBack" />
+
+		<execute macro="FormsAdminNavigator#gotoEdit" />
+	</command>
+
+	<command name="ViewSuccessPage" priority="5">
+		<description message="This is a use case for LPS-71072." />
+		<property name="portal.acceptance" value="pending" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -4373,31 +4660,25 @@
 		</execute>
 
 		<execute macro="Form#editFieldLabel">
-			<var name="fieldValue" value="Visible Field" />
+			<var name="fieldValue" value="Text Field" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
 
-		<execute macro="Form#gotoAddField">
-			<var name="fieldType" value="Text Field" />
+		<execute macro="Form#addSuccessPage" />
+
+		<execute macro="Form#editSuccessPage">
+			<var name="successPageDescription" value="Thank you for filling out the Form." />
+			<var name="successPageTitle" value="Success Page Title" />
 		</execute>
-
-		<execute macro="Form#editFieldLabel">
-			<var name="fieldValue" value="Hidden Field" />
-		</execute>
-
-		<execute macro="Form#gotoAdvancedTab" />
-
-		<execute macro="FormFields#editText">
-			<var name="fieldName" value="visibility" />
-			<var name="fieldValue" value="equals(VisibleField, &quot;test&quot;)" />
-		</execute>
-
-		<execute macro="Form#closeSidebar" />
 
 		<execute macro="Form#save" />
 
 		<execute macro="Page#add">
+			<var name="pageName" value="Form Page" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Form Page" />
 		</execute>
 
@@ -4416,28 +4697,21 @@
 			<var name="pageName" value="Form Page" />
 		</execute>
 
-		<execute macro="FormFields#editText">
-			<var name="fieldName" value="VisibleField" />
-			<var name="fieldValue" value="quality test" />
-		</execute>
-
-		<execute macro="FormPortletNavigator#clickFormContent" />
-
-		<execute macro="FormFields#viewTextFieldNotVisible">
-			<var name="fieldLabel" value="Hidden Field" />
-			<var name="fieldName" value="HiddenField" />
+		<execute macro="FormFields#viewTextLabel">
+			<var name="fieldLabel" value="Text Field" />
+			<var name="fieldName" value="TextField" />
 		</execute>
 
 		<execute macro="FormFields#editText">
-			<var name="fieldName" value="VisibleField" />
-			<var name="fieldValue" value="test" />
+			<var name="fieldName" value="TextField" />
+			<var name="fieldValue" value="Text Field Value" />
 		</execute>
 
-		<execute macro="FormPortletNavigator#clickFormContent" />
+		<execute macro="FormPortlet#submit" />
 
-		<execute macro="FormFields#viewTextField">
-			<var name="fieldLabel" value="Hidden Field" />
-			<var name="fieldName" value="HiddenField" />
+		<execute macro="FormPortlet#viewSuccessPage">
+			<var name="successPageDescription" value="Thank you for filling out the Form." />
+			<var name="successPageTitle" value="Success Page Title" />
 		</execute>
 	</command>
 </definition>

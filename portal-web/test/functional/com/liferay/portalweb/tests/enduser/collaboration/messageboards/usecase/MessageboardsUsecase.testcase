@@ -1,5 +1,6 @@
 <definition component-name="portal-collaboration">
 	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="custom.properties" value="default.layout.template.id=1_column" />
 	<property name="testray.main.component.name" value="Message Boards" />
 
@@ -146,6 +147,79 @@
 
 		<execute macro="MessageboardsThread#viewDefaultCP">
 			<var name="threadSubject" value="MB Thread Message Subject" />
+		</execute>
+	</command>
+
+	<command ignore="true" name="ImportLAR" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Site#addBlankCP">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Page#add">
+			<var name="pageName" value="Site Page Name" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Message Boards" />
+		</execute>
+
+		<execute macro="LAR#importPortlet">
+			<var name="larFileName" value="space-message-boards.lar" />
+			<var name="uploadFrom" value="dependencies" />
+		</execute>
+
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Message Boards" />
+		</execute>
+
+		<execute macro="MessageboardsCategory#viewCP">
+			<var name="categoryName" value="General Discussion" />
+			<var name="subcategoriesNumber" value="0" />
+			<var name="threadsNumber" value="1" />
+		</execute>
+
+		<execute macro="MessageboardsThread#viewReplyWithUpvote">
+			<var name="postCount" value="5" />
+			<var name="threadBody" value="Super embarrassing, but does anybody know what to do when the Anti-Gravity Chamber door gets stuck and maintenance has gone for the day? Yesterday was the second time I’ve been in there all night, and I have to say, not liking the ambience." />
+			<var name="threadReplyBodyList" value="Couldn’t you just call somebody?,lol Jonny never has his cell,dude seriously creepy,As the Anti-Gravity Chamber handbook" />
+			<var name="threadSubject" value="Stuck in the Anti-Gravity Chamber" />
+		</execute>
+
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Message Boards" />
+		</execute>
+
+		<execute macro="MessageboardsCategory#viewCP">
+			<var name="categoryName" value="Homework Discussion" />
+			<var name="subcategoriesNumber" value="0" />
+			<var name="threadsNumber" value="1" />
+		</execute>
+
+		<execute macro="MessageboardsThread#viewReplyWithUpvote">
+			<var name="postCount" value="4" />
+			<var name="threadBody" value="I’m writing a paper called Mars on a Budget, and I’d be curious to hear from other departments about their thoughts on reducing overall costs of missions and how that can happen at every level without compromising safety or efficiency. After the economic downturn of 2062, budgetary restrictions remain an important concern. Thanks!" />
+			<var name="threadReplyBodyList" value="dr novola has some thoughts,one barrier is the inflated cost of materials combined with worker compensation,Are you factoring in environmental impact?" />
+			<var name="threadSubject" value="Cost Reduction for Mars" />
 		</execute>
 	</command>
 
@@ -820,7 +894,7 @@
 			<var name="categoryName" value="MB Category3 Name" />
 		</execute>
 
-		<execute macro="MessageboardsThread#replyPG">
+		<execute macro="MessageboardsThread#replyWithAttachmentPG">
 			<var name="mbThreadAttachment" value="Document_4.jpeg" />
 			<var name="threadReplyBody" value="MB Thread1 Reply Body" />
 			<var name="threadSubject" value="MB Thread3 Message Subject" />
@@ -1031,6 +1105,9 @@
 
 	<command name="ViewMBThreadAndReplyThreadInGmail" priority="4">
 		<property name="custom.properties" value="message.boards.message.formats.default=html${line.separator}pop.server.notifications.enabled=true${line.separator}pop.server.subdomain=${line.separator}mail.session.mail.smtp.auth=true${line.separator}mail.session.mail.store.protocol=pop3${line.separator}mail.session.mail.transport.protocol=smtp" />
+		<property name="test.name.skip.portal.instance" value="MessageboardsUsecase#ViewMBThreadAndReplyThreadInGmail" />
+
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
 
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
@@ -1088,7 +1165,7 @@
 		</execute>
 
 		<execute macro="User#editEmailViaMyAccount">
-			<var method="TestPropsUtil#get('email.address.2')" name="userEmailAddress" />
+			<var method="TestPropsUtil#get('email.address.4')" name="userEmailAddress" />
 		</execute>
 
 		<execute macro="MessageboardsPortlet#configureMessageEmailFromCP">
@@ -1146,7 +1223,7 @@
 
 		<execute macro="User#loginPG">
 			<var name="password" value="test" />
-			<var method="TestPropsUtil#get('email.address.2')" name="userEmailAddress" />
+			<var method="TestPropsUtil#get('email.address.4')" name="userEmailAddress" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -1159,7 +1236,7 @@
 
 		<execute macro="MessageboardsThread#addPG">
 			<var name="threadBody" value="MB Thread Message Body" />
-			<var name="threadSubject" value="MB Thread Message Subject" />
+			<var name="threadSubject" value="MB Thread Message Subject GMMB1" />
 		</execute>
 
 		<execute function="Pause" locator1="30000" />
@@ -1173,16 +1250,16 @@
 
 		<execute macro="Gmail#viewMail">
 			<var name="emailFromUserName" value="Test Test" />
-			<var name="gmailAssetType" value="MB Category Name New Message" />
+			<var name="gmailAssetType" value="GMMB1" />
 			<var name="gmailMessageBody" value="MB Thread Message Body" />
-			<var name="gmailMessageTitle" value="MB Category Name New Message: MB Thread Message Subject" />
+			<var name="gmailMessageTitle" value="MB Category Name New Message: MB Thread Message Subject GMMB1" />
 		</execute>
 
 		<execute macro="Gmail#replyMail">
-			<var name="gmailReplyMessage" value="MB Thread Message Subject Reply" />
+			<var name="gmailReplyMessage" value="MB Thread Message Subject GMMB1 Reply" />
 		</execute>
 
-		<execute function="Open" locator1="http://localhost:8080" />
+		<execute function="Open" locator1="${portalURL}" />
 
 		<execute function="Pause" locator1="60000" />
 
@@ -1201,14 +1278,15 @@
 		<execute macro="MessageboardsThread#viewReplyPG">
 			<var name="postCount" value="2" />
 			<var name="threadBody" value="MB Thread Message Body" />
-			<var name="threadReplyBody" value="MB Thread Message Subject Reply" />
-			<var name="threadSubject" value="MB Thread Message Subject" />
+			<var name="threadReplyBody" value="MB Thread Message Subject GMMB1 Reply" />
+			<var name="threadSubject" value="MB Thread Message Subject GMMB1" />
 			<var name="userName" value="userfn userln" />
 		</execute>
 
-		<execute macro="Gmail#tearDown">
-			<var method="TestPropsUtil#get('email.address.3')" name="userEmailAddress" />
-			<var method="TestPropsUtil#get('email.password.3')" name="userPassword" />
+		<execute macro="Gmail#gotoHtmlMode" />
+
+		<execute macro="Gmail#deleteSpecificMail">
+			<var name="gmailMessageTitleList" value="MB Category Name New Message: MB Thread Message Subject GMMB1,Your New Account,Your New Password,GMMB1" />
 		</execute>
 	</command>
 

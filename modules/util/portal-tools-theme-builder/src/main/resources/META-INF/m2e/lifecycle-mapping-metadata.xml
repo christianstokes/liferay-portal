@@ -5,11 +5,14 @@
 		<pluginExecution>
 			<pluginExecutionFilter>
 				<goals>
-					<goal>build-theme</goal>
+					<goal>build</goal>
 				</goals>
 			</pluginExecutionFilter>
 			<action>
-				<ignore/>
+				<execute>
+					<runOnConfiguration>true</runOnConfiguration>
+					<runOnIncremental>true</runOnIncremental>
+				</execute>
 			</action>
 		</pluginExecution>
 	</pluginExecutions>
