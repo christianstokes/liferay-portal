@@ -3,8 +3,9 @@
 import App from 'senna/src/app/App';
 import core from 'metal/src/core';
 import dom from 'metal-dom/src/dom';
-import Utils from '../util/Utils.es';
 import LiferaySurface from '../surface/Surface.es';
+import Utils from '../util/Utils.es';
+import {CancellablePromise} from 'metal-promise/src/promise/Promise';
 
 class LiferayApp extends App {
 	constructor() {
@@ -18,7 +19,7 @@ class LiferayApp extends App {
 		this.timeout = Math.max(Liferay.SPA.requestTimeout, 0) || Utils.getMaxTimeout();
 		this.timeoutAlert = null;
 
-		var exceptionsSelector = ':not([target="_blank"]):not([data-senna-off]):not([data-resource-href])';
+		var exceptionsSelector = Liferay.SPA.navigationExceptionSelectors;
 
 		this.setFormSelector('form' + exceptionsSelector);
 		this.setLinkSelector('a' + exceptionsSelector);
@@ -28,6 +29,7 @@ class LiferayApp extends App {
 		this.on('endNavigate', this.onEndNavigate);
 		this.on('startNavigate', this.onStartNavigate);
 
+		Liferay.on('beforeScreenFlip', Utils.resetAllPortlets);
 		Liferay.on('io:complete', this.onLiferayIOComplete, this);
 
 		var body = document.body;
@@ -123,12 +125,29 @@ class LiferayApp extends App {
 
 		if (event.error) {
 			if (event.error.invalidStatus || event.error.requestError || event.error.timeout) {
-				if (event.form) {
-					event.form.submit();
+				let message = Liferay.Language.get('there-was-an-unexpected-error.-please-refresh-the-current-page');
+
+				if (Liferay.SPA.debugEnabled) {
+					console.error(event.error);
+
+					if (event.error.invalidStatus) {
+						message = Liferay.Language.get('the-spa-navigation-request-received-an-invalid-http-status-code');
+					}
+					if (event.error.requestError) {
+						message = Liferay.Language.get('there-was-an-unexpected-error-in-the-spa-request');
+					}
+					if (event.error.timeout) {
+						message = Liferay.Language.get('the-spa-request-timed-out');
+					}
 				}
-				else {
-					window.location.href = event.path;
-				}
+
+				this._createNotification(
+					{
+						message: message,
+						title: Liferay.Language.get('error'),
+						type: 'danger'
+					}
+				);
 			}
 		}
 		else if (Liferay.Layout && Liferay.Data.layoutConfig) {
@@ -170,25 +189,30 @@ class LiferayApp extends App {
 		}
 	}
 
-	_createTimeoutNotification() {
-		var instance = this;
-
-		AUI().use(
-			'liferay-notification',
-			() => {
-				instance.timeoutAlert = new Liferay.Notification(
-					{
-						closeable: true,
-						delay: {
-							hide: 0,
-							show: 0
-						},
-						duration: 500,
-						message: Liferay.SPA.userNotification.message,
-						title: Liferay.SPA.userNotification.title,
-						type: 'warning'
+	_createNotification(config) {
+		return new CancellablePromise(
+			(resolve) => {
+				AUI().use(
+					'liferay-notification',
+					() => {
+						resolve(
+							new Liferay.Notification(
+								Object.assign(
+									{
+										closeable: true,
+										delay: {
+											hide: 0,
+											show: 0
+										},
+										duration: 500,
+										type: 'warning'
+									},
+									config
+								)
+							).render('body')
+						);
 					}
-				).render('body');
+				);
 			}
 		);
 	}
@@ -213,7 +237,17 @@ class LiferayApp extends App {
 					);
 
 					if (!this.timeoutAlert) {
-						this._createTimeoutNotification();
+						this._createNotification(
+							{
+								message: Liferay.SPA.userNotification.message,
+								title: Liferay.SPA.userNotification.title,
+								type: 'warning'
+							}
+						).then(
+							(alert) => {
+								this.timeoutAlert = alert;
+							}
+						);
 					}
 					else {
 						this.timeoutAlert.show();

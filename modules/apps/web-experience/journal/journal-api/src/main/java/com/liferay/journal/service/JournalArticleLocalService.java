@@ -432,6 +432,15 @@ public interface JournalArticleLocalService extends BaseLocalService,
 	public JournalArticle fetchArticle(long groupId,
 		java.lang.String articleId, double version);
 
+	/**
+	* Returns the web content article with the ID.
+	*
+	* @param id the primary key of the web content article
+	* @return the web content article with the ID
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public JournalArticle fetchArticle(long id);
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public JournalArticle fetchArticleByUrlTitle(long groupId,
 		java.lang.String urlTitle);
@@ -3249,6 +3258,9 @@ public interface JournalArticleLocalService extends BaseLocalService,
 	public void setTreePaths(long folderId, java.lang.String treePath,
 		boolean reindex) throws PortalException;
 
+	public void subscribe(long userId, long groupId, long articleId)
+		throws PortalException;
+
 	/**
 	* Subscribes the user to changes in elements that belong to the web content
 	* article's DDM structure.
@@ -3259,6 +3271,9 @@ public interface JournalArticleLocalService extends BaseLocalService,
 	*/
 	public void subscribeStructure(long groupId, long userId,
 		long ddmStructureId) throws PortalException;
+
+	public void unsubscribe(long userId, long groupId, long articleId)
+		throws PortalException;
 
 	/**
 	* Unsubscribes the user from changes in elements that belong to the web

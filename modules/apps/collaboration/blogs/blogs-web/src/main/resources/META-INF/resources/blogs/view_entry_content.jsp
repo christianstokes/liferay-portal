@@ -23,6 +23,9 @@ BlogsEntry entry = (BlogsEntry)request.getAttribute("view_entry_content.jsp-entr
 
 AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp-assetEntry");
 
+RatingsEntry ratingsEntry = (RatingsEntry)request.getAttribute("view_entry_content.jsp-ratingsEntry");
+RatingsStats ratingsStats = (RatingsStats)request.getAttribute("view_entry_content.jsp-ratingsStats");
+
 String socialBookmarksDisplayPosition = blogsPortletInstanceConfiguration.socialBookmarksDisplayPosition();
 %>
 
@@ -78,8 +81,20 @@ String socialBookmarksDisplayPosition = blogsPortletInstanceConfiguration.social
 						<span> - </span>
 						<span class="hide-accessible"><liferay-ui:message key="published-date" /></span>
 						<%= dateFormatDate.format(entry.getDisplayDate()) %>
-						<span> - </span>
-						<span><%= LanguageUtil.format(resourceBundle, "x-minutes-read", new String[] {String.valueOf(com.liferay.blogs.web.internal.util.BlogsUtil.getReadingTimeMinutes(entry.getContent()))}, false) %></span>
+
+						<c:if test="<%= blogsPortletInstanceConfiguration.enableReadingTime() %>">
+
+							<%
+							int readingTimeInMinutes = com.liferay.blogs.web.internal.util.BlogsUtil.getReadingTimeMinutes(entry.getContent());
+							%>
+
+							<c:if test="<%= readingTimeInMinutes > 0 %>">
+								<span> - </span>
+								<span>
+									<liferay-ui:message arguments="<%= readingTimeInMinutes %>" key="x-minutes-read" translateArguments="<%= false %>" />
+								</span>
+							</c:if>
+						</c:if>
 					</small>
 
 					<c:if test='<%= viewSingleEntry && blogsPortletInstanceConfiguration.enableSocialBookmarks() && socialBookmarksDisplayPosition.equals("top") %>'>
@@ -167,14 +182,14 @@ String socialBookmarksDisplayPosition = blogsPortletInstanceConfiguration.social
 							<%= entry.getContent() %>
 						</div>
 
-						<liferay-ui:custom-attributes-available className="<%= BlogsEntry.class.getName() %>">
-							<liferay-ui:custom-attribute-list
+						<liferay-expando:custom-attributes-available className="<%= BlogsEntry.class.getName() %>">
+							<liferay-expando:custom-attribute-list
 								className="<%= BlogsEntry.class.getName() %>"
 								classPK="<%= entry.getEntryId() %>"
 								editable="<%= false %>"
 								label="<%= true %>"
 							/>
-						</liferay-ui:custom-attributes-available>
+						</liferay-expando:custom-attributes-available>
 					</c:when>
 				</c:choose>
 			</div>
@@ -278,6 +293,9 @@ String socialBookmarksDisplayPosition = blogsPortletInstanceConfiguration.social
 							<liferay-ui:ratings
 								className="<%= BlogsEntry.class.getName() %>"
 								classPK="<%= entry.getEntryId() %>"
+								inTrash="<%= entry.isInTrash() %>"
+								ratingsEntry="<%= ratingsEntry %>"
+								ratingsStats="<%= ratingsStats %>"
 							/>
 						</div>
 					</c:if>
@@ -292,6 +310,8 @@ String socialBookmarksDisplayPosition = blogsPortletInstanceConfiguration.social
 								className="<%= BlogsEntry.class.getName() %>"
 								classPK="<%= entry.getEntryId() %>"
 								contentTitle="<%= BlogsEntryUtil.getDisplayTitle(resourceBundle, entry) %>"
+								enabled="<%= !entry.isInTrash() %>"
+								message='<%= entry.isInTrash() ? "flags-are-disabled-because-this-entry-is-in-the-recycle-bin" : StringPool.BLANK %>'
 								reportedUserId="<%= entry.getUserId() %>"
 							/>
 						</div>

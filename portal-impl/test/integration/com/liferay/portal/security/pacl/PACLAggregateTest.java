@@ -58,6 +58,7 @@ import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
@@ -124,13 +125,30 @@ public class PACLAggregateTest extends AutoBalanceTestCase {
 
 		arguments.add("-Djava.security.policy==" + url.getFile());
 
-		arguments.add("-Dliferay.mode=test");
-
 		boolean junitDebug = Boolean.getBoolean("jvm.debug");
 
 		if (junitDebug) {
 			arguments.add(_JPDA_OPTIONS);
 			arguments.add("-Djvm.debug=true");
+		}
+
+		arguments.add("-Dliferay.mode=test");
+		arguments.add("-Dsun.zip.disableMemoryMapping=true");
+
+		String aspectjAgent = System.getProperty("aspectj.agent");
+
+		if (aspectjAgent != null) {
+			arguments.add(aspectjAgent);
+			arguments.add("-Daspectj.agent=" + aspectjAgent);
+
+			String aspectjConfiguration = System.getProperty(
+				"org.aspectj.weaver.loadtime.configuration");
+
+			if (aspectjConfiguration != null) {
+				arguments.add(
+					"-Dorg.aspectj.weaver.loadtime.configuration=" +
+						aspectjConfiguration);
+			}
 		}
 
 		arguments.add(
@@ -285,10 +303,19 @@ public class PACLAggregateTest extends AutoBalanceTestCase {
 
 			List<CaptureAppender> captureAppenders = null;
 
-			Path tempStatePath = null;
+			String originalTempDirName = System.getProperty(
+				SystemProperties.TMP_DIR);
+
+			Path newTempDirPath = Paths.get(originalTempDirName, "PACL");
 
 			try {
-				tempStatePath = Files.createTempDirectory(null);
+				Files.createDirectories(newTempDirPath);
+
+				System.setProperty(
+					SystemProperties.TMP_DIR, newTempDirPath.toString());
+
+				Path tempStatePath = Files.createTempDirectory(
+					newTempDirPath, null);
 
 				System.setProperty(
 					"portal:" + PropsKeys.MODULE_FRAMEWORK_STATE_DIR,
@@ -320,10 +347,13 @@ public class PACLAggregateTest extends AutoBalanceTestCase {
 
 				MPIHelperUtil.shutdown();
 
-				if (tempStatePath != null) {
+				System.setProperty(
+					SystemProperties.TMP_DIR, originalTempDirName);
+
+				if (newTempDirPath != null) {
 					try {
 						Files.walkFileTree(
-							tempStatePath,
+							newTempDirPath,
 							new SimpleFileVisitor<Path>() {
 
 								@Override
