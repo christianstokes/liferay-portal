@@ -68,6 +68,7 @@ import com.liferay.shopping.service.base.ShoppingOrderLocalServiceBaseImpl;
 import com.liferay.shopping.util.CreditCard;
 import com.liferay.shopping.util.ShoppingUtil;
 import com.liferay.shopping.util.comparator.OrderDateComparator;
+import com.liferay.subscription.service.SubscriptionLocalService;
 
 import java.util.Currency;
 import java.util.List;
@@ -85,7 +86,7 @@ public class ShoppingOrderLocalServiceImpl
 
 		// Order
 
-		User user = userPersistence.findByPrimaryKey(userId);
+		User user = userLocalService.getUser(userId);
 
 		String number = getNumber();
 
@@ -602,7 +603,7 @@ public class ShoppingOrderLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		User user = userPersistence.findByPrimaryKey(order.getUserId());
+		User user = userLocalService.getUser(order.getUserId());
 
 		Currency currency = Currency.getInstance(
 			shoppingGroupServiceOverriddenConfiguration.getCurrencyId());
@@ -808,6 +809,9 @@ public class ShoppingOrderLocalServiceImpl
 
 	@ServiceReference(type = ConfigurationProvider.class)
 	protected ConfigurationProvider configurationProvider;
+
+	@ServiceReference(type = SubscriptionLocalService.class)
+	protected SubscriptionLocalService subscriptionLocalService;
 
 	private ShoppingGroupServiceOverriddenConfiguration
 			_getShoppingGroupServiceOverriddenConfiguration(long groupId)

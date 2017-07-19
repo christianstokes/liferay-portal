@@ -20,14 +20,13 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
-import com.liferay.exportimport.content.processor.ExportImportContentProcessorController;
-import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
+import com.liferay.exportimport.lar.BaseStagedModelDataHandler;
 import com.liferay.journal.internal.exportimport.content.processor.JournalArticleExportImportContentProcessor;
 import com.liferay.journal.internal.exportimport.creation.strategy.JournalCreationStrategy;
 import com.liferay.journal.model.JournalArticle;
@@ -57,7 +56,7 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -180,7 +179,8 @@ public class JournalArticleStagedModelDataHandler
 		catch (Exception e) {
 			throw new IllegalStateException(
 				"Unable to find article resource for article " +
-					article.getArticleId());
+					article.getArticleId(),
+				e);
 		}
 
 		referenceAttributes.put("article-resource-uuid", articleResourceUuid);
@@ -197,11 +197,7 @@ public class JournalArticleStagedModelDataHandler
 			return referenceAttributes;
 		}
 
-		boolean preloaded = false;
-
-		if (defaultUserId == article.getUserId()) {
-			preloaded = true;
-		}
+		boolean preloaded = isPreloadedArticle(defaultUserId, article);
 
 		referenceAttributes.put("preloaded", String.valueOf(preloaded));
 
@@ -247,7 +243,7 @@ public class JournalArticleStagedModelDataHandler
 		PortletDataContext portletDataContext, JournalArticle article) {
 
 		if (article.getClassNameId() ==
-				PortalUtil.getClassNameId(DDMStructure.class)) {
+				_portal.getClassNameId(DDMStructure.class)) {
 
 			return false;
 		}
@@ -277,8 +273,7 @@ public class JournalArticleStagedModelDataHandler
 		}
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
-			article.getGroupId(),
-			PortalUtil.getClassNameId(JournalArticle.class),
+			article.getGroupId(), _portal.getClassNameId(JournalArticle.class),
 			article.getDDMStructureKey(), true);
 
 		StagedModelDataHandlerUtil.exportReferenceStagedModel(
@@ -286,11 +281,11 @@ public class JournalArticleStagedModelDataHandler
 			PortletDataContext.REFERENCE_TYPE_STRONG);
 
 		if (article.getClassNameId() !=
-				PortalUtil.getClassNameId(DDMStructure.class)) {
+				_portal.getClassNameId(DDMStructure.class)) {
 
 			DDMTemplate ddmTemplate = _ddmTemplateLocalService.getTemplate(
 				article.getGroupId(),
-				PortalUtil.getClassNameId(DDMStructure.class),
+				_portal.getClassNameId(DDMStructure.class),
 				article.getDDMTemplateKey(), true);
 
 			StagedModelDataHandlerUtil.exportReferenceStagedModel(
@@ -309,7 +304,7 @@ public class JournalArticleStagedModelDataHandler
 		if (article.isSmallImage()) {
 			if (Validator.isNotNull(article.getSmallImageURL())) {
 				String smallImageURL =
-					_exportImportContentProcessorController.
+					_journalArticleExportImportContentProcessor.
 						replaceExportContentReferences(
 							portletDataContext, article,
 							article.getSmallImageURL() + StringPool.SPACE, true,
@@ -370,7 +365,7 @@ public class JournalArticleStagedModelDataHandler
 		article.setStatusByUserUuid(article.getStatusByUserUuid());
 
 		String content =
-			_exportImportContentProcessorController.
+			_journalArticleExportImportContentProcessor.
 				replaceExportContentReferences(
 					portletDataContext, article, article.getContent(),
 					portletDataContext.getBooleanParameter(
@@ -382,7 +377,7 @@ public class JournalArticleStagedModelDataHandler
 		long defaultUserId = _userLocalService.getDefaultUserId(
 			article.getCompanyId());
 
-		if (defaultUserId == article.getUserId()) {
+		if (isPreloadedArticle(defaultUserId, article)) {
 			articleElement.addAttribute("preloaded", "true");
 		}
 
@@ -490,7 +485,7 @@ public class JournalArticleStagedModelDataHandler
 		String content = article.getContent();
 
 		content =
-			_exportImportContentProcessorController.
+			_journalArticleExportImportContentProcessor.
 				replaceImportContentReferences(
 					portletDataContext, article, content);
 
@@ -622,7 +617,7 @@ public class JournalArticleStagedModelDataHandler
 
 				if (Validator.isNotNull(article.getSmallImageURL())) {
 					String smallImageURL =
-						_exportImportContentProcessorController.
+						_journalArticleExportImportContentProcessor.
 							replaceImportContentReferences(
 								portletDataContext, article,
 								article.getSmallImageURL());
@@ -949,6 +944,26 @@ public class JournalArticleStagedModelDataHandler
 			groupId, articleId, version);
 	}
 
+	protected boolean isPreloadedArticle(
+		long defaultUserId, JournalArticle article) {
+
+		if (defaultUserId == article.getUserId()) {
+			return true;
+		}
+
+		JournalArticle firstArticle = _journalArticleLocalService.fetchArticle(
+			article.getGroupId(), article.getArticleId(),
+			JournalArticleConstants.VERSION_DEFAULT);
+
+		if ((firstArticle != null) &&
+			(defaultUserId == firstArticle.getUserId())) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	@Reference(unbind = "-")
 	protected void setDDMStructureLocalService(
 		DDMStructureLocalService ddmStructureLocalService) {
@@ -968,13 +983,13 @@ public class JournalArticleStagedModelDataHandler
 		_imageLocalService = imageLocalService;
 	}
 
-	/**
-	 * @deprecated As of 4.0.0
-	 */
-	@Deprecated
+	@Reference(unbind = "-")
 	protected void setJournalArticleExportImportContentProcessor(
 		JournalArticleExportImportContentProcessor
 			journalArticleExportImportContentProcessor) {
+
+		_journalArticleExportImportContentProcessor =
+			journalArticleExportImportContentProcessor;
 	}
 
 	@Reference(unbind = "-")
@@ -1005,8 +1020,8 @@ public class JournalArticleStagedModelDataHandler
 	}
 
 	/**
-	 * @deprecated As of 4.0.0, only used for backwards compatibility with
-	 *             LARs that use journal schema under 1.1.0
+	 * @deprecated As of 4.0.0, only used for backwards compatibility with LARs
+	 *             that use journal schema under 1.1.0
 	 */
 	@Deprecated
 	private void _setLegacyValues(JournalArticle article) {
@@ -1031,16 +1046,17 @@ public class JournalArticleStagedModelDataHandler
 
 	private DDMStructureLocalService _ddmStructureLocalService;
 	private DDMTemplateLocalService _ddmTemplateLocalService;
-
-	@Reference
-	private ExportImportContentProcessorController
-		_exportImportContentProcessorController;
-
 	private ImageLocalService _imageLocalService;
+	private JournalArticleExportImportContentProcessor
+		_journalArticleExportImportContentProcessor;
 	private JournalArticleLocalService _journalArticleLocalService;
 	private JournalArticleResourceLocalService
 		_journalArticleResourceLocalService;
 	private JournalCreationStrategy _journalCreationStrategy;
+
+	@Reference
+	private Portal _portal;
+
 	private UserLocalService _userLocalService;
 
 }

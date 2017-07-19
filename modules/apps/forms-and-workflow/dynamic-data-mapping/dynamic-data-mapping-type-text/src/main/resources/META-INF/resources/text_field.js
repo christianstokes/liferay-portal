@@ -18,6 +18,11 @@ AUI.add(
 		var TextField = A.Component.create(
 			{
 				ATTRS: {
+					autocompleteEnabled: {
+						state: true,
+						value: false
+					},
+
 					displayStyle: {
 						state: true,
 						value: 'singleline'
@@ -46,21 +51,19 @@ AUI.add(
 						var instance = this;
 
 						instance._eventHandlers.push(
-							instance.after('optionsChange', instance._afterOptionsChange)
+							instance.after('optionsChange', instance._afterOptionsChange),
+							instance.after('valueChange', instance._onTextFieldValueChange)
 						);
-
-						instance.bindInputEvent('focus', instance._onFocusInput);
 					},
 
-					bindInputEvent: function(eventName, callback, volatile) {
-						var instance = this;
+					evaluate: A.debounce(
+						function() {
+							var instance = this;
 
-						if (eventName === instance.getChangeEventName()) {
-							callback = A.debounce(callback, 300, instance);
-						}
-
-						return TextField.superclass.bindInputEvent.apply(instance, [eventName, callback, volatile]);
-					},
+							TextField.superclass.evaluate.apply(instance, arguments);
+						},
+						300
+					),
 
 					getAutoComplete: function() {
 						var instance = this;
@@ -84,15 +87,27 @@ AUI.add(
 						return 'input';
 					},
 
+					getTextHeight: function() {
+						var instance = this;
+
+						var text = instance.getValue();
+
+						return text.split('\n').length;
+					},
+
 					render: function() {
 						var instance = this;
 
 						TextField.superclass.render.apply(instance, arguments);
 
-						var options = instance.get('options');
+						var autocompleteEnabled = instance.get('autocompleteEnabled');
 
-						if (options.length && instance.get('visible')) {
+						if (autocompleteEnabled && instance.get('visible')) {
 							instance._createAutocomplete();
+						}
+
+						if (instance.get('displayStyle') === 'multiline') {
+							instance.syncInputHeight();
 						}
 
 						return instance;
@@ -110,22 +125,39 @@ AUI.add(
 						inputGroup.insert(container.one('.help-block'), 'after');
 					},
 
+					syncInputHeight: function() {
+						var instance = this;
+
+						var inputNode = instance.getInputNode();
+
+						var height = instance.getTextHeight();
+
+						if (height < 2) {
+							inputNode.set('rows', 1);
+						}
+						else {
+							inputNode.set('rows', height);
+						}
+					},
+
 					_afterOptionsChange: function(event) {
 						var instance = this;
 
-						var autoComplete = instance.getAutoComplete();
+						if (instance.get('autocompleteEnabled')) {
+							var autoComplete = instance.getAutoComplete();
 
-						if (!Util.compare(event.newVal, event.prevVal)) {
-							autoComplete.set('source', event.newVal);
+							if (!Util.compare(event.newVal, event.prevVal)) {
+								autoComplete.set('source', event.newVal);
 
-							autoComplete.fire(
-								'query',
-								{
-									inputValue: instance.getValue(),
-									query: instance.getValue(),
-									src: A.AutoCompleteBase.UI_SRC
-								}
-							);
+								autoComplete.fire(
+									'query',
+									{
+										inputValue: instance.getValue(),
+										query: instance.getValue(),
+										src: A.AutoCompleteBase.UI_SRC
+									}
+								);
+							}
 						}
 					},
 
@@ -154,18 +186,11 @@ AUI.add(
 						);
 					},
 
-					_onFocusInput: function() {
+					_onTextFieldValueChange: function() {
 						var instance = this;
 
 						if (instance.get('displayStyle') === 'multiline') {
-							var textAreaNode = instance.getInputNode();
-
-							if (!textAreaNode.autosize) {
-								textAreaNode.plug(A.Plugin.Autosize);
-								textAreaNode.height(textAreaNode.get('scrollHeight'));
-							}
-
-							textAreaNode.autosize._uiAutoSize();
+							instance.syncInputHeight();
 						}
 					}
 				}

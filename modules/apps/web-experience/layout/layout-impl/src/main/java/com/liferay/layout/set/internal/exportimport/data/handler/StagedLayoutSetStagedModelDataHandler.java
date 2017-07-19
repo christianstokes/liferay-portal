@@ -17,7 +17,7 @@ package com.liferay.layout.set.internal.exportimport.data.handler;
 import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
-import com.liferay.exportimport.kernel.lar.ExportImportProcessCallbackRegistryUtil;
+import com.liferay.exportimport.kernel.lar.ExportImportProcessCallbackRegistry;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetBranch;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.StagedModel;
+import com.liferay.portal.kernel.model.adapter.ModelAdapterUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -47,7 +48,6 @@ import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.LayoutUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.DateRange;
@@ -70,6 +70,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -84,6 +85,7 @@ public class StagedLayoutSetStagedModelDataHandler
 	public static final String[] CLASS_NAMES =
 		{StagedLayoutSet.class.getName()};
 
+	@Override
 	public String[] getClassNames() {
 		return CLASS_NAMES;
 	}
@@ -126,7 +128,7 @@ public class StagedLayoutSetStagedModelDataHandler
 				continue;
 			}
 
-			Layout sourcePrototypeLayout = LayoutUtil.fetchByUUID_G_P(
+			Layout sourcePrototypeLayout = _layoutLocalService.fetchLayout(
 				layout.getSourcePrototypeLayoutUuid(),
 				layoutSetPrototype.getGroupId(), true);
 
@@ -154,9 +156,13 @@ public class StagedLayoutSetStagedModelDataHandler
 			portletDataContext.getGroupId(),
 			portletDataContext.isPrivateLayout());
 
-		List<String> sourceLayoutUuids = layoutElements.stream().map(
-			(layoutElement) -> layoutElement.attributeValue("uuid")).collect(
-				Collectors.toList());
+		Stream<Element> layoutElementsStream = layoutElements.stream();
+
+		List<String> sourceLayoutUuids = layoutElementsStream.map(
+			(layoutElement) -> layoutElement.attributeValue("uuid")
+		).collect(
+			Collectors.toList()
+		);
 
 		if (_log.isDebugEnabled() && !sourceLayoutUuids.isEmpty()) {
 			_log.debug("Delete missing layouts");
@@ -196,6 +202,17 @@ public class StagedLayoutSetStagedModelDataHandler
 		Element stagedLayoutSetElement =
 			portletDataContext.getExportDataElement(stagedLayoutSet);
 
+		// Last publish date must not be exported
+
+		UnicodeProperties settingsProperties =
+			stagedLayoutSet.getSettingsProperties();
+
+		settingsProperties.remove("last-publish-date");
+
+		// Page versioning
+
+		stagedLayoutSet = unwrapLayoutSetStagingHandler(stagedLayoutSet);
+
 		portletDataContext.addClassedModel(
 			stagedLayoutSetElement,
 			ExportImportPathUtil.getModelPath(stagedLayoutSet),
@@ -210,7 +227,8 @@ public class StagedLayoutSetStagedModelDataHandler
 		if (ExportImportThreadLocal.isStagingInProcess() &&
 			updateLastPublishDate) {
 
-			ExportImportProcessCallbackRegistryUtil.registerCallback(
+			_exportImportProcessCallbackRegistry.registerCallback(
+				portletDataContext.getExportImportProcessId(),
 				new UpdateLayoutSetLastPublishDateCallable(
 					portletDataContext.getDateRange(),
 					portletDataContext.getGroupId(),
@@ -234,7 +252,16 @@ public class StagedLayoutSetStagedModelDataHandler
 		importedStagedLayoutSet.setGroupId(
 			portletDataContext.getScopeGroupId());
 
-		if (existingLayoutSetOptional.isPresent()) {
+		String layoutsImportMode = MapUtil.getString(
+			portletDataContext.getParameterMap(),
+			PortletDataHandlerKeys.LAYOUTS_IMPORT_MODE,
+			PortletDataHandlerKeys.LAYOUTS_IMPORT_MODE_MERGE_BY_LAYOUT_UUID);
+
+		if (existingLayoutSetOptional.isPresent() &&
+			!layoutsImportMode.equals(
+				PortletDataHandlerKeys.
+					LAYOUTS_IMPORT_MODE_CREATED_FROM_PROTOTYPE)) {
+
 			StagedLayoutSet existingLayoutSet = existingLayoutSetOptional.get();
 
 			importedStagedLayoutSet.setLayoutSetId(
@@ -317,7 +344,7 @@ public class StagedLayoutSetStagedModelDataHandler
 				if (!LayoutStagingUtil.prepareLayoutStagingHandler(
 						portletDataContext, layout)) {
 
-					return;
+					continue;
 				}
 
 				StagedModelDataHandlerUtil.exportReferenceStagedModel(
@@ -452,6 +479,10 @@ public class StagedLayoutSetStagedModelDataHandler
 
 		String logoPath = headerElement.attributeValue("logo-path");
 
+		if (Validator.isNull(logoPath)) {
+			return;
+		}
+
 		byte[] iconBytes = portletDataContext.getZipEntryAsByteArray(logoPath);
 
 		try {
@@ -492,6 +523,19 @@ public class StagedLayoutSetStagedModelDataHandler
 		}
 	}
 
+	protected StagedLayoutSet unwrapLayoutSetStagingHandler(
+		StagedLayoutSet stagedLayoutSet) {
+
+		LayoutSet layoutSet = ModelAdapterUtil.adapt(
+			stagedLayoutSet, StagedLayoutSet.class, LayoutSet.class);
+
+		layoutSet = LayoutStagingUtil.mergeLayoutSetRevisionIntoLayoutSet(
+			layoutSet);
+
+		return ModelAdapterUtil.adapt(
+			layoutSet, LayoutSet.class, StagedLayoutSet.class);
+	}
+
 	protected void updateLastMergeTime(
 			PortletDataContext portletDataContext, Set<Layout> modifiedLayouts)
 		throws PortalException {
@@ -530,7 +574,7 @@ public class StagedLayoutSetStagedModelDataHandler
 			typeSettingsProperties.setProperty(
 				Sites.LAST_MERGE_TIME, String.valueOf(lastMergeTime));
 
-			LayoutUtil.update(layout);
+			_layoutLocalService.updateLayout(layout);
 		}
 
 		// The layout set may be stale because LayoutUtil#update(layout)
@@ -547,9 +591,7 @@ public class StagedLayoutSetStagedModelDataHandler
 		String mergeFailFriendlyURLLayouts = settingsProperties.getProperty(
 			Sites.MERGE_FAIL_FRIENDLY_URL_LAYOUTS);
 
-		if (Validator.isNull(mergeFailFriendlyURLLayouts) &&
-			modifiedLayouts.isEmpty()) {
-
+		if (Validator.isNull(mergeFailFriendlyURLLayouts)) {
 			settingsProperties.setProperty(
 				Sites.LAST_MERGE_TIME, String.valueOf(lastMergeTime));
 
@@ -621,6 +663,10 @@ public class StagedLayoutSetStagedModelDataHandler
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		StagedLayoutSetStagedModelDataHandler.class);
+
+	@Reference
+	private ExportImportProcessCallbackRegistry
+		_exportImportProcessCallbackRegistry;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

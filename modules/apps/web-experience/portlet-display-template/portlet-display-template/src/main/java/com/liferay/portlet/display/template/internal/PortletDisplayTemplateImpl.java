@@ -97,6 +97,12 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 					uuid, groupId);
 			}
 			catch (PortalException pe) {
+
+				// LPS-52675
+
+				if (_log.isDebugEnabled()) {
+					_log.debug(pe, pe);
+				}
 			}
 
 			try {
@@ -117,9 +123,13 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 
 	@Override
 	public long getDDMTemplateGroupId(long groupId) {
-		try {
-			Group group = _groupLocalService.getGroup(groupId);
+		Group group = _groupLocalService.fetchGroup(groupId);
 
+		if (group == null) {
+			return groupId;
+		}
+
+		try {
 			if (group.isLayout()) {
 				group = group.getParentGroup();
 			}
@@ -214,6 +224,12 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 							ddmTemplateKey, true);
 				}
 				catch (PortalException pe) {
+
+					// LPS-52675
+
+					if (_log.isDebugEnabled()) {
+						_log.debug(pe, pe);
+					}
 				}
 			}
 		}

@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
-import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -71,10 +70,10 @@ public class DDMStructureStagedModelDataHandlerTest
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			SynchronousDestinationTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 
@@ -253,7 +252,9 @@ public class DDMStructureStagedModelDataHandlerTest
 		List<StagedModel> ddmStructureDependentStagedModels =
 			dependentStagedModelsMap.get(DDMStructure.class.getSimpleName());
 
-		Assert.assertEquals(1, ddmStructureDependentStagedModels.size());
+		Assert.assertEquals(
+			ddmStructureDependentStagedModels.toString(), 1,
+			ddmStructureDependentStagedModels.size());
 
 		DDMStructure ddmStructure =
 			(DDMStructure)ddmStructureDependentStagedModels.get(0);
@@ -266,7 +267,8 @@ public class DDMStructureStagedModelDataHandlerTest
 				DDMDataProviderInstance.class.getSimpleName());
 
 		Assert.assertEquals(
-			1, ddmDataProviderInstanceDependentStagedModels.size());
+			ddmDataProviderInstanceDependentStagedModels.toString(), 1,
+			ddmDataProviderInstanceDependentStagedModels.size());
 
 		DDMDataProviderInstance dataProviderInstance =
 			(DDMDataProviderInstance)
@@ -311,8 +313,12 @@ public class DDMStructureStagedModelDataHandlerTest
 				getDataProviderInstanceLinks(
 					importedStructure.getStructureId());
 
-		Assert.assertEquals(1, dataProviderInstanceLinks.size());
-		Assert.assertEquals(1, importedDataProviderInstanceLinks.size());
+		Assert.assertEquals(
+			dataProviderInstanceLinks.toString(), 1,
+			dataProviderInstanceLinks.size());
+		Assert.assertEquals(
+			importedDataProviderInstanceLinks.toString(), 1,
+			importedDataProviderInstanceLinks.size());
 
 		DDMDataProviderInstanceLink dataProviderInstanceLink =
 			dataProviderInstanceLinks.get(0);

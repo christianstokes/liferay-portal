@@ -28,12 +28,11 @@ import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.service.RepositoryLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.persistence.RepositoryUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
-import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -69,8 +68,31 @@ public class WikiPageStagedModelDataHandlerTest
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			SynchronousDestinationTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			SynchronousDestinationTestRule.INSTANCE);
+
+	@Override
+	protected Map<String, List<StagedModel>> addDefaultDependentStagedModelsMap(
+			Group group)
+		throws Exception {
+
+		Map<String, List<StagedModel>> dependentStagedModelsMap =
+			new HashMap<>();
+
+		WikiNode node = WikiTestUtil.addDefaultNode(group.getGroupId());
+
+		addDependentStagedModel(dependentStagedModelsMap, WikiNode.class, node);
+
+		return dependentStagedModelsMap;
+	}
+
+	@Override
+	protected StagedModel addDefaultStagedModel(
+			Group group,
+			Map<String, List<StagedModel>> dependentStagedModelsMap)
+		throws Exception {
+
+		return addStagedModel(group, dependentStagedModelsMap, "Front Page");
+	}
 
 	@Override
 	protected Map<String, List<StagedModel>> addDependentStagedModelsMap(
@@ -93,6 +115,16 @@ public class WikiPageStagedModelDataHandlerTest
 			Map<String, List<StagedModel>> dependentStagedModelsMap)
 		throws Exception {
 
+		return addStagedModel(
+			group, dependentStagedModelsMap, RandomTestUtil.randomString());
+	}
+
+	protected StagedModel addStagedModel(
+			Group group,
+			Map<String, List<StagedModel>> dependentStagedModelsMap,
+			String name)
+		throws Exception {
+
 		List<StagedModel> dependentStagedModels = dependentStagedModelsMap.get(
 			WikiNode.class.getSimpleName());
 
@@ -102,9 +134,8 @@ public class WikiPageStagedModelDataHandlerTest
 			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		WikiPage page = WikiTestUtil.addPage(
-			TestPropsValues.getUserId(), node.getNodeId(),
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(), true,
-			serviceContext);
+			TestPropsValues.getUserId(), node.getNodeId(), name,
+			RandomTestUtil.randomString(), true, serviceContext);
 
 		WikiTestUtil.addWikiAttachment(
 			TestPropsValues.getUserId(), node.getNodeId(), page.getTitle(),
@@ -128,7 +159,7 @@ public class WikiPageStagedModelDataHandlerTest
 			dependentStagedModelsMap, DLFileEntry.class,
 			attachmentsFileEntries.get(0));
 
-		Repository repository = RepositoryUtil.fetchByPrimaryKey(
+		Repository repository = RepositoryLocalServiceUtil.getRepository(
 			fileEntry.getRepositoryId());
 
 		addDependentStagedModel(
@@ -226,7 +257,8 @@ public class WikiPageStagedModelDataHandlerTest
 		List<StagedModel> dependentStagedModels = dependentStagedModelsMap.get(
 			WikiNode.class.getSimpleName());
 
-		Assert.assertEquals(1, dependentStagedModels.size());
+		Assert.assertEquals(
+			dependentStagedModels.toString(), 1, dependentStagedModels.size());
 
 		WikiNode node = (WikiNode)dependentStagedModels.get(0);
 
@@ -249,7 +281,8 @@ public class WikiPageStagedModelDataHandlerTest
 		List<FileEntry> attachmentFileEntries =
 			page.getAttachmentsFileEntries();
 
-		Assert.assertEquals(1, attachmentFileEntries.size());
+		Assert.assertEquals(
+			attachmentFileEntries.toString(), 1, attachmentFileEntries.size());
 
 		validateImport(dependentStagedModelsMap, group);
 	}

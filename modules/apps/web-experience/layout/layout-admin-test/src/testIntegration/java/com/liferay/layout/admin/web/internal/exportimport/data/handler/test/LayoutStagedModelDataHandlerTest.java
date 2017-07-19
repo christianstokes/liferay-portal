@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
-import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.lar.test.BaseStagedModelDataHandlerTestCase;
@@ -60,8 +59,7 @@ public class LayoutStagedModelDataHandlerTest
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			SynchronousDestinationTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@Test
 	public void testTypeLinkToLayout() throws Exception {
@@ -100,7 +98,8 @@ public class LayoutStagedModelDataHandlerTest
 		ExportImportLifecycleManagerUtil.fireExportImportLifecycleEvent(
 			ExportImportLifecycleConstants.EVENT_LAYOUT_IMPORT_STARTED,
 			ExportImportLifecycleConstants.
-				PROCESS_FLAG_LAYOUT_STAGING_IN_PROCESS,
+				PROCESS_FLAG_LAYOUT_IMPORT_IN_PROCESS,
+			portletDataContext.getExportImportProcessId(),
 			PortletDataContextFactoryUtil.clonePortletDataContext(
 				portletDataContext));
 
@@ -118,7 +117,8 @@ public class LayoutStagedModelDataHandlerTest
 		ExportImportLifecycleManagerUtil.fireExportImportLifecycleEvent(
 			ExportImportLifecycleConstants.EVENT_LAYOUT_IMPORT_SUCCEEDED,
 			ExportImportLifecycleConstants.
-				PROCESS_FLAG_LAYOUT_STAGING_IN_PROCESS,
+				PROCESS_FLAG_LAYOUT_IMPORT_IN_PROCESS,
+			portletDataContext.getExportImportProcessId(),
 			PortletDataContextFactoryUtil.clonePortletDataContext(
 				portletDataContext));
 
@@ -234,7 +234,8 @@ public class LayoutStagedModelDataHandlerTest
 		List<StagedModel> dependentStagedModels = dependentStagedModelsMap.get(
 			Layout.class.getSimpleName());
 
-		Assert.assertEquals(1, dependentStagedModels.size());
+		Assert.assertEquals(
+			dependentStagedModels.toString(), 1, dependentStagedModels.size());
 
 		Layout parentLayout = (Layout)dependentStagedModels.get(0);
 

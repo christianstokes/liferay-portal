@@ -38,7 +38,6 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
-import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -71,8 +70,7 @@ public class FolderStagedModelDataHandlerTest
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			SynchronousDestinationTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@Test
 	public void testCompanyScopeDependencies() throws Exception {
@@ -296,7 +294,9 @@ public class FolderStagedModelDataHandlerTest
 		List<StagedModel> ddmStructureDependentStagedModels =
 			dependentStagedModelsMap.get(ddmStructureClass.getSimpleName());
 
-		Assert.assertEquals(1, ddmStructureDependentStagedModels.size());
+		Assert.assertEquals(
+			ddmStructureDependentStagedModels.toString(), 1,
+			ddmStructureDependentStagedModels.size());
 
 		DDMStructure ddmStructure =
 			(DDMStructure)ddmStructureDependentStagedModels.get(0);
@@ -309,7 +309,9 @@ public class FolderStagedModelDataHandlerTest
 		List<StagedModel> dlFileEntryTypesDependentStagedModels =
 			dependentStagedModelsMap.get(DLFileEntryType.class.getSimpleName());
 
-		Assert.assertEquals(1, dlFileEntryTypesDependentStagedModels.size());
+		Assert.assertEquals(
+			dlFileEntryTypesDependentStagedModels.toString(), 1,
+			dlFileEntryTypesDependentStagedModels.size());
 
 		DLFileEntryType dlFileEntryType =
 			(DLFileEntryType)dlFileEntryTypesDependentStagedModels.get(0);
@@ -333,7 +335,9 @@ public class FolderStagedModelDataHandlerTest
 		List<StagedModel> ddmStructureDependentStagedModels =
 			dependentStagedModelsMap.get(ddmStructureClass.getSimpleName());
 
-		Assert.assertEquals(1, ddmStructureDependentStagedModels.size());
+		Assert.assertEquals(
+			ddmStructureDependentStagedModels.toString(), 1,
+			ddmStructureDependentStagedModels.size());
 
 		DDMStructure ddmStructure =
 			(DDMStructure)ddmStructureDependentStagedModels.get(0);
@@ -344,7 +348,9 @@ public class FolderStagedModelDataHandlerTest
 		List<StagedModel> dlFileEntryTypesDependentStagedModels =
 			dependentStagedModelsMap.get(DLFileEntryType.class.getSimpleName());
 
-		Assert.assertEquals(1, dlFileEntryTypesDependentStagedModels.size());
+		Assert.assertEquals(
+			dlFileEntryTypesDependentStagedModels.toString(), 1,
+			dlFileEntryTypesDependentStagedModels.size());
 
 		DLFileEntryType dlFileEntryType =
 			(DLFileEntryType)dlFileEntryTypesDependentStagedModels.get(0);
@@ -355,7 +361,9 @@ public class FolderStagedModelDataHandlerTest
 		List<StagedModel> folderDependentStagedModels =
 			dependentStagedModelsMap.get(DLFolder.class.getSimpleName());
 
-		Assert.assertEquals(1, folderDependentStagedModels.size());
+		Assert.assertEquals(
+			folderDependentStagedModels.toString(), 1,
+			folderDependentStagedModels.size());
 
 		Folder parentFolder = (Folder)folderDependentStagedModels.get(0);
 

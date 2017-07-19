@@ -26,7 +26,6 @@ import com.liferay.portal.kernel.service.LayoutPrototypeLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
-import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.lar.test.BaseStagedModelDataHandlerTestCase;
@@ -55,8 +54,7 @@ public class LayoutPrototypeStagedModelDataHandlerTest
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			SynchronousDestinationTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@After
 	@Override
@@ -100,7 +98,8 @@ public class LayoutPrototypeStagedModelDataHandlerTest
 			LayoutFriendlyURLLocalServiceUtil.getLayoutFriendlyURLs(
 				layout.getPlid());
 
-		Assert.assertEquals(1, layoutFriendlyURLs.size());
+		Assert.assertEquals(
+			layoutFriendlyURLs.toString(), 1, layoutFriendlyURLs.size());
 
 		addDependentStagedModel(
 			dependentStagedModelsMap, LayoutFriendlyURL.class,
@@ -152,7 +151,9 @@ public class LayoutPrototypeStagedModelDataHandlerTest
 		List<StagedModel> layoutDependentStagedModels =
 			dependentStagedModelsMap.get(Layout.class.getSimpleName());
 
-		Assert.assertEquals(1, layoutDependentStagedModels.size());
+		Assert.assertEquals(
+			layoutDependentStagedModels.toString(), 1,
+			layoutDependentStagedModels.size());
 
 		Layout layout = (Layout)layoutDependentStagedModels.get(0);
 
