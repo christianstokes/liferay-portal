@@ -103,7 +103,7 @@
 		function(event) {
 			event.preventDefault();
 
-			var searchContainerName = '<portlet:namespace/>assetLinksSearchContainer';
+			var searchContainerName = '<portlet:namespace />assetLinksSearchContainer';
 
 			var searchContainer = Liferay.SearchContainer.get(searchContainerName);
 
@@ -129,9 +129,11 @@
 					uri: event.currentTarget.attr('data-href')
 				},
 				function(event) {
-					var entryLink = '<a class="modify-link" data-rowId="' + event.assetentryid + '" href="javascript:;"><%= UnicodeFormatter.toString(removeLinkIcon) %></a>';
+					var entityId = event.entityid;
 
-					searchContainer.addRow([event.assettype, A.Escape.html(event.assettitle), A.Escape.html(event.groupdescriptivename), entryLink], event.assetentryid);
+					var entryLink = '<a class="modify-link" data-rowId="' + entityId + '" href="javascript:;"><%= UnicodeFormatter.toString(removeLinkIcon) %></a>';
+
+					searchContainer.addRow([event.assettype, A.Escape.html(event.assettitle), A.Escape.html(event.groupdescriptivename), entryLink], entityId);
 
 					searchContainer.updateDataStore();
 				}
@@ -152,7 +154,7 @@
 </aui:script>
 
 <aui:script use="liferay-search-container">
-	var searchContainer = Liferay.SearchContainer.get('<portlet:namespace/>assetLinksSearchContainer');
+	var searchContainer = Liferay.SearchContainer.get('<portlet:namespace />assetLinksSearchContainer');
 
 	searchContainer.get('contentBox').delegate(
 		'click',

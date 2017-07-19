@@ -48,14 +48,11 @@ AUI.add(
 					initializer: function() {
 						var instance = this;
 
-						var eventHandlers;
-
-						eventHandlers = [
+						instance._eventHandlers = [
+							A.getDoc().on('click', A.bind(instance._onClickDocument, instance)),
 							instance.after('open', instance._afterSidebarOpen),
 							instance.after('open:start', instance._afterOpenStart)
 						];
-
-						instance._eventHandlers = eventHandlers;
 					},
 
 					destructor: function() {
@@ -83,11 +80,7 @@ AUI.add(
 
 						var field = instance.get('field');
 
-						var settingsForm = instance.settingsForm;
-
-						var settings = field.getSettings(settingsForm);
-
-						return settings;
+						return field.getSettings();
 					},
 
 					getPreviousContext: function() {
@@ -104,6 +97,16 @@ AUI.add(
 						var currentFieldSettings = instance.getFieldSettings();
 
 						return JSON.stringify(previousContext) !== JSON.stringify(currentFieldSettings.context);
+					},
+
+					hasFocus: function(node) {
+						var instance = this;
+
+						var activeElement = A.one(node || document.activeElement);
+
+						var settingsForm = instance.settingsForm;
+
+						return (settingsForm && settingsForm.hasFocus()) || instance._containsNode(activeElement) || instance._isFieldNode(activeElement);
 					},
 
 					_afterOpenStart: function() {
@@ -129,12 +132,6 @@ AUI.add(
 
 						var toolbar = instance.get('toolbar');
 
-						if (instance.settingsForm) {
-							instance._hideSettingsForm();
-						}
-
-						instance._showLoading();
-
 						var fieldType = FieldTypes.get(field.get('type'));
 
 						instance.set('description', fieldType.get('label'));
@@ -143,6 +140,21 @@ AUI.add(
 						instance._loadFieldSettingsForm(field);
 
 						toolbar.set('field', field);
+					},
+
+					_bindSettingsFormEvents: function() {
+						var instance = this;
+
+						var settingsForm = instance.settingsForm;
+
+						var labelField = settingsForm.getField('label');
+
+						labelField.after(
+							'valueChange',
+							function() {
+								instance.set('title', labelField.getValue());
+							}
+						);
 					},
 
 					_configureSideBar: function() {
@@ -158,21 +170,20 @@ AUI.add(
 							'render',
 							function() {
 								settingsFormContainer.one('.navbar-nav').wrap(TPL_NAVBAR_WRAPER);
-							}
-						);
 
-						var evaluator = settingsForm.get('evaluator');
+								settingsForm.getFirstPageField().focus();
 
-						evaluator.after(
-							'evaluationStarted',
-							function() {
-								instance.set('title', settingsForm.getField('label').getValue());
+								instance._bindSettingsFormEvents();
 							}
 						);
 
 						settingsForm.render();
+					},
 
-						settingsForm.getFirstPageField().focus();
+					_containsNode: function(node) {
+						var instance = this;
+
+						return instance.get('boundingBox').contains(node);
 					},
 
 					_createToolbar: function() {
@@ -187,12 +198,10 @@ AUI.add(
 						return toolbar;
 					},
 
-					_hideSettingsForm: function() {
+					_isFieldNode: function(node) {
 						var instance = this;
 
-						var container = instance.settingsForm.get('container');
-
-						container.addClass('invisible');
+						return node.ancestorsByClassName('.ddm-form-field-container').size();
 					},
 
 					_loadFieldSettingsForm: function(field) {
@@ -206,12 +215,17 @@ AUI.add(
 
 								settingsForm.evaluate(
 									function() {
-										instance._showSettingsForm();
 										instance._removeLoading();
+
+										instance._setFocusToFirstPageField(settingsForm);
 									}
 								);
 
-								field.setAttrs(field.getSettings(settingsForm));
+								var settingsFormContext = settingsForm.get('context');
+
+								field.set('context.settingsContext', settingsFormContext);
+
+								field.saveSettings();
 
 								instance._saveCurrentContext();
 
@@ -226,12 +240,20 @@ AUI.add(
 						);
 					},
 
+					_onClickDocument: function(event) {
+						var instance = this;
+
+						if (instance.get('open') && !instance.hasFocus(event.target)) {
+							instance.close();
+						}
+					},
+
 					_removeLoading: function() {
 						var instance = this;
 
 						var boundingBox = instance.get('boundingBox');
 
-						boundingBox.one('.loading-icon').remove();
+						boundingBox.removeClass('loading-data');
 					},
 
 					_saveCurrentContext: function() {
@@ -254,6 +276,18 @@ AUI.add(
 						}
 					},
 
+					_setFocusToFirstPageField: function(settingsForm) {
+						var field = settingsForm.getFirstPageField();
+
+						var container = field.get('container');
+
+						var input = container.one('input');
+
+						if (input) {
+							input.focus();
+						}
+					},
+
 					_setTitle: function(value) {
 						return value || Liferay.Language.get('unlabeled');
 					},
@@ -261,19 +295,14 @@ AUI.add(
 					_showLoading: function() {
 						var instance = this;
 
+						var boundingBox = instance.get('boundingBox');
 						var contentBox = instance.get('contentBox');
 
 						if (!contentBox.one('.loading-icon')) {
 							contentBox.append(TPL_LOADING);
 						}
-					},
 
-					_showSettingsForm: function() {
-						var instance = this;
-
-						var container = instance.settingsForm.get('container');
-
-						container.removeClass('invisible');
+						boundingBox.addClass('loading-data');
 					}
 				}
 			}

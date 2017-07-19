@@ -14,9 +14,9 @@
 
 package com.liferay.blogs.internal.upgrade;
 
+import com.liferay.blogs.internal.upgrade.v1_1_0.UpgradeClassNames;
 import com.liferay.blogs.internal.upgrade.v1_1_0.UpgradeFriendlyURL;
-import com.liferay.friendly.url.service.FriendlyURLLocalService;
-import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
+import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
 import org.osgi.service.component.annotations.Component;
@@ -31,21 +31,21 @@ public class BlogsServiceUpgrade implements UpgradeStepRegistrator {
 	@Override
 	public void register(Registry registry) {
 		registry.register(
-			"com.liferay.blogs.service", "0.0.0", "1.0.0",
-			new DummyUpgradeStep());
+			"com.liferay.blogs.service", "0.0.1", "1.0.0",
+			new UpgradeClassNames());
 
 		registry.register(
 			"com.liferay.blogs.service", "1.0.0", "1.1.0",
-			new UpgradeFriendlyURL(_friendlyURLLocalService));
+			new UpgradeFriendlyURL(_friendlyURLEntryLocalService));
 	}
 
 	@Reference(unbind = "-")
-	protected void setFriendlyURLLocalService(
-		FriendlyURLLocalService friendlyURLLocalService) {
+	protected void setFriendlyURLEntryLocalService(
+		FriendlyURLEntryLocalService friendlyURLEntryLocalService) {
 
-		_friendlyURLLocalService = friendlyURLLocalService;
+		_friendlyURLEntryLocalService = friendlyURLEntryLocalService;
 	}
 
-	private FriendlyURLLocalService _friendlyURLLocalService;
+	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
 
 }

@@ -15,7 +15,7 @@
 		<execute macro="ImageEditor#_saveFile" />
 	</command>
 
-	<command name="cancel Changes">
+	<command name="cancelChanges">
 		<execute function="AssertClick" locator1="Button#CANCEL_EFFECTS" value1="Cancel" />
 	</command>
 
@@ -46,11 +46,11 @@
 	<command name="gotoImageEditorViaDM">
 		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
 
-		<execute function="Click" locator1="DocumentsAndMedia#ICON_DOCUMENT_ACTIONS" />
+		<execute function="Click" locator1="DocumentsAndMedia#ICON_DOCUMENT_VERTICAL_ELLIPSIS" />
 
 		<execute function="AssertClick" locator1="MenuItem#EDIT_WITH_IMAGE_EDITOR" value1="Edit With Image Editor" />
 
-		<execute function="SelectFrame" locator1="ImageEditor#IMAGE_EDITOR_IFRAME" />
+		<execute macro="IFrame#selectConfigurationFrame" />
 	</command>
 
 	<command name="gotoImageEditorViaItemSelector">
@@ -101,9 +101,9 @@
 	</command>
 
 	<command name="viewBaseControls">
-		<execute function="AssertElementPresent" locator1="Button#TRANSFORM" />
-		<execute function="AssertElementPresent" locator1="Button#FILTER_EFFECT" />
-		<execute function="AssertElementPresent" locator1="Button#COLOR_EFFECT" />
+		<execute function="AssertVisible" locator1="Button#TRANSFORM" />
+		<execute function="AssertVisible" locator1="Button#FILTER_EFFECT" />
+		<execute function="AssertVisible" locator1="Button#COLOR_EFFECT" />
 	</command>
 
 	<command name="viewImageEditorPortletHeader">

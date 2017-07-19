@@ -17,6 +17,7 @@ package com.liferay.gradle.plugins.js.module.config.generator;
 import com.liferay.gradle.plugins.node.tasks.ExecuteNodeScriptTask;
 import com.liferay.gradle.util.FileUtil;
 import com.liferay.gradle.util.GradleUtil;
+import com.liferay.gradle.util.Validator;
 
 import groovy.lang.Closure;
 
@@ -117,6 +118,12 @@ public class ConfigJSModulesTask
 	@Optional
 	public String getConfigVariable() {
 		return GradleUtil.toString(_configVariable);
+	}
+
+	@Input
+	@Optional
+	public String getCustomDefine() {
+		return GradleUtil.toString(_customDefine);
 	}
 
 	@Override
@@ -222,6 +229,10 @@ public class ConfigJSModulesTask
 		_configVariable = configVariable;
 	}
 
+	public void setCustomDefine(Object customDefine) {
+		_customDefine = customDefine;
+	}
+
 	@Override
 	public ConfigJSModulesTask setExcludes(Iterable<String> excludes) {
 		_patternFilterable.setExcludes(excludes);
@@ -317,6 +328,13 @@ public class ConfigJSModulesTask
 		completeArgs.add("--moduleConfig");
 		completeArgs.add(FileUtil.getAbsolutePath(getModuleConfigFile()));
 
+		String customDefine = getCustomDefine();
+
+		if (Validator.isNotNull(customDefine)) {
+			completeArgs.add("--namespace");
+			completeArgs.add(customDefine);
+		}
+
 		completeArgs.add("--output");
 		completeArgs.add(FileUtil.getAbsolutePath(getOutputFile()));
 
@@ -331,6 +349,7 @@ public class ConfigJSModulesTask
 	}
 
 	private Object _configVariable;
+	private Object _customDefine = "Liferay.Loader";
 	private boolean _ignorePath;
 	private boolean _keepFileExtension;
 	private boolean _lowerCase;
