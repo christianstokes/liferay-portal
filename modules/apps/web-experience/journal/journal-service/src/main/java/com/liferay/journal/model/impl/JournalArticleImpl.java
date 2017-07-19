@@ -28,6 +28,7 @@ import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.journal.service.JournalArticleResourceLocalServiceUtil;
 import com.liferay.journal.service.JournalFolderLocalServiceUtil;
+import com.liferay.journal.transformer.JournalTransformerListenerRegistryUtil;
 import com.liferay.journal.transformer.LocaleTransformerListener;
 import com.liferay.journal.util.impl.JournalUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -35,6 +36,8 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Image;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Repository;
@@ -43,6 +46,7 @@ import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.ImageLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.templateparser.TransformerListener;
@@ -59,8 +63,10 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.util.PropsValues;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -84,10 +90,13 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 		Document document, String languageId, Map<String, String> tokens) {
 
 		TransformerListener transformerListener =
-			new LocaleTransformerListener();
+			JournalTransformerListenerRegistryUtil.getTransformerListener(
+				LocaleTransformerListener.class.getName());
 
-		document = transformerListener.onXml(
-			document.clone(), languageId, tokens);
+		if (transformerListener != null) {
+			document = transformerListener.onXml(
+				document.clone(), languageId, tokens);
+		}
 
 		return document.asXML();
 	}
@@ -123,8 +132,12 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 		serviceContext.setAddGroupPermissions(true);
 		serviceContext.setAddGuestPermissions(true);
 
+		Group controlPanelGroup = GroupLocalServiceUtil.getGroup(
+			getCompanyId(), GroupConstants.CONTROL_PANEL);
+
 		Repository repository = PortletFileRepositoryUtil.addPortletRepository(
-			getGroupId(), JournalConstants.SERVICE_NAME, serviceContext);
+			controlPanelGroup.getGroupId(), JournalConstants.SERVICE_NAME,
+			serviceContext);
 
 		Folder folder = PortletFileRepositoryUtil.addPortletFolder(
 			getUserId(), repository.getRepositoryId(),
@@ -211,33 +224,55 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	public String getContentByLocale(String languageId) {
 		Map<String, String> tokens = new HashMap<>();
 
-		try {
-			DDMStructure ddmStructure = getDDMStructure();
+		DDMStructure ddmStructure = getDDMStructure();
 
+		if (ddmStructure != null) {
 			tokens.put(
 				"ddm_structure_id",
 				String.valueOf(ddmStructure.getStructureId()));
-		}
-		catch (PortalException pe) {
 		}
 
 		return getContentByLocale(getDocument(), languageId, tokens);
 	}
 
 	@Override
-	public DDMStructure getDDMStructure() throws PortalException {
-		return DDMStructureLocalServiceUtil.fetchStructure(
-			PortalUtil.getSiteGroupId(getGroupId()),
-			ClassNameLocalServiceUtil.getClassNameId(JournalArticle.class),
-			getDDMStructureKey(), true);
+	public DDMStructure getDDMStructure() {
+		DDMStructure ddmStructure = null;
+
+		try {
+			ddmStructure = DDMStructureLocalServiceUtil.fetchStructure(
+				PortalUtil.getSiteGroupId(getGroupId()),
+				ClassNameLocalServiceUtil.getClassNameId(JournalArticle.class),
+				getDDMStructureKey(), true);
+		}
+		catch (PortalException pe) {
+			_log.error(
+				"Unable to get DDM structure with DDM structure key " +
+					getDDMStructureKey(),
+				pe);
+		}
+
+		return ddmStructure;
 	}
 
 	@Override
-	public DDMTemplate getDDMTemplate() throws PortalException {
-		return DDMTemplateLocalServiceUtil.fetchTemplate(
-			PortalUtil.getSiteGroupId(getGroupId()),
-			ClassNameLocalServiceUtil.getClassNameId(JournalArticle.class),
-			getDDMStructureKey(), true);
+	public DDMTemplate getDDMTemplate() {
+		DDMTemplate ddmTemplate = null;
+
+		try {
+			ddmTemplate = DDMTemplateLocalServiceUtil.fetchTemplate(
+				PortalUtil.getSiteGroupId(getGroupId()),
+				ClassNameLocalServiceUtil.getClassNameId(JournalArticle.class),
+				getDDMTemplateKey(), true);
+		}
+		catch (PortalException pe) {
+			_log.error(
+				"Unable to get DDM template for DDM structure with" +
+					"DDM structure key " + getDDMStructureKey(),
+				pe);
+		}
+
+		return ddmTemplate;
 	}
 
 	@JSON
@@ -319,6 +354,15 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	}
 
 	@Override
+	public Date getDisplayDate() {
+		if (!PropsValues.SCHEDULER_ENABLED) {
+			return null;
+		}
+
+		return super.getDisplayDate();
+	}
+
+	@Override
 	public Document getDocument() {
 		if (_document == null) {
 			try {
@@ -332,6 +376,15 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 		}
 
 		return _document;
+	}
+
+	@Override
+	public Date getExpirationDate() {
+		if (!PropsValues.SCHEDULER_ENABLED) {
+			return null;
+		}
+
+		return super.getExpirationDate();
 	}
 
 	@Override
@@ -366,9 +419,12 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 			return new ArrayList<>();
 		}
 
+		Group controlPanelGroup = GroupLocalServiceUtil.getGroup(
+			getCompanyId(), GroupConstants.CONTROL_PANEL);
+
 		return PortletFileRepositoryUtil.getPortletFileEntries(
-			getGroupId(), imagesFolderId, WorkflowConstants.STATUS_APPROVED,
-			start, end, obc);
+			controlPanelGroup.getGroupId(), imagesFolderId,
+			WorkflowConstants.STATUS_APPROVED, start, end, obc);
 	}
 
 	@Override
@@ -379,8 +435,12 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 			return 0;
 		}
 
+		Group controlPanelGroup = GroupLocalServiceUtil.getGroup(
+			getCompanyId(), GroupConstants.CONTROL_PANEL);
+
 		return PortletFileRepositoryUtil.getPortletFileEntriesCount(
-			getGroupId(), imagesFolderId, WorkflowConstants.STATUS_APPROVED);
+			controlPanelGroup.getGroupId(), imagesFolderId,
+			WorkflowConstants.STATUS_APPROVED);
 	}
 
 	@Override
@@ -389,15 +449,19 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 			return _imagesFolderId;
 		}
 
-		Repository repository =
-			PortletFileRepositoryUtil.fetchPortletRepository(
-				getGroupId(), JournalConstants.SERVICE_NAME);
-
-		if (repository == null) {
-			return DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
-		}
-
 		try {
+			Group controlPanelGroup = GroupLocalServiceUtil.getGroup(
+				getCompanyId(), GroupConstants.CONTROL_PANEL);
+
+			Repository repository =
+				PortletFileRepositoryUtil.fetchPortletRepository(
+					controlPanelGroup.getGroupId(),
+					JournalConstants.SERVICE_NAME);
+
+			if (repository == null) {
+				return DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
+			}
+
 			Folder folder = PortletFileRepositoryUtil.getPortletFolder(
 				repository.getRepositoryId(),
 				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
@@ -407,7 +471,7 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 		}
 		catch (Exception e) {
 			if (_log.isDebugEnabled()) {
-				_log.debug("Unable to find folder for " + getResourcePrimKey());
+				_log.debug("Unable to get folder for " + getResourcePrimKey());
 			}
 		}
 
@@ -439,6 +503,15 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	@Deprecated
 	public String getLegacyTitle() {
 		return _title;
+	}
+
+	@Override
+	public Date getReviewDate() {
+		if (!PropsValues.SCHEDULER_ENABLED) {
+			return null;
+		}
+
+		return super.getReviewDate();
 	}
 
 	@Override

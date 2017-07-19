@@ -49,6 +49,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ASSIGNEES</td>
+	<td>//ul[contains(@class,'navbar-nav')]/li/a[contains(.,'Assignees')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>AVAILABLE_SITES</td>
 	<td>//div[contains(@class,'navbar-default')]//a[contains(@title,'Available Sites')]</td>
 	<td></td>
@@ -66,6 +71,11 @@
 <tr>
 	<td>BASIC_SEARCH_ADVANCED</td>
 	<td>//div[contains(@class,'navbar-default')]//button[contains(@id,'Advanced')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CAPTCHA</td>
+	<td>//ul[contains(@class,'navbar-nav')]/li/a[contains(.,'CAPTCHA')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -180,7 +190,7 @@
 </tr>
 <tr>
 	<td>SEARCH_TOGGLE_ADVANCED</td>
-	<td>//a[contains(@id,'searchtoggleAdvanced')]</td>
+	<td>//button[contains(@id,'searchtoggleAdvanced')]/span</td>
 	<td></td>
 </tr>
 <tr>
@@ -206,11 +216,6 @@
 <tr>
 	<td>USERS</td>
 	<td>//ul[contains(@class,'nav') and contains(@class,'navbar-nav')]/li/a[contains(.,'Users')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>USER_GROUPS</td>
-	<td>//ul[contains(@class,'nav') and contains(@class,'navbar-nav')]/li/a[contains(.,'User Groups')]</td>
 	<td></td>
 </tr>
 </tbody>

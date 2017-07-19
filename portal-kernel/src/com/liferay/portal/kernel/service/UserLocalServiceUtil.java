@@ -149,7 +149,9 @@ public class UserLocalServiceUtil {
 	* @param user the user
 	* @return <code>true</code> if the user's password is expiring soon;
 	<code>false</code> otherwise
+	* @deprecated As of 7.0.0
 	*/
+	@Deprecated
 	public static boolean isPasswordExpiringSoon(
 		com.liferay.portal.kernel.model.User user)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -1798,6 +1800,11 @@ public class UserLocalServiceUtil {
 		return getService().getUsersCount();
 	}
 
+	public static int getUsersCount(long companyId, boolean defaultUser,
+		int status) {
+		return getService().getUsersCount(companyId, defaultUser, status);
+	}
+
 	/**
 	* Returns the number of users with the status, and whose first name, middle
 	* name, last name, screen name, and email address match the keywords
@@ -2213,6 +2220,13 @@ public class UserLocalServiceUtil {
 	public static java.util.List<com.liferay.portal.kernel.model.User> getUsers(
 		int start, int end) {
 		return getService().getUsers(start, end);
+	}
+
+	public static java.util.List<com.liferay.portal.kernel.model.User> getUsers(
+		long companyId, boolean defaultUser, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.kernel.model.User> obc) {
+		return getService()
+				   .getUsers(companyId, defaultUser, status, start, end, obc);
 	}
 
 	/**

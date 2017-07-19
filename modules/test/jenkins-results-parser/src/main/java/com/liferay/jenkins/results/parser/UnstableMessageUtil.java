@@ -14,6 +14,8 @@
 
 package com.liferay.jenkins.results.parser;
 
+import com.liferay.jenkins.results.parser.failure.message.generator.GenericFailureMessageGenerator;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -266,7 +268,7 @@ public class UnstableMessageUtil {
 						sb.append("<a href=\"");
 
 						String logURL = _getLogURL(
-							jobVariant, project, runBuildURLJSONObject);
+							jobVariant, project, runBuildURL);
 
 						sb.append(logURL);
 
@@ -284,8 +286,7 @@ public class UnstableMessageUtil {
 							"/jenkins-console.txt.gz\">Console Output</a>");
 
 						if (Boolean.parseBoolean(
-								project.getProperty(
-									"record.liferay.log"))) {
+								project.getProperty("record.liferay.log"))) {
 
 							sb.append(" - ");
 							sb.append("<a href=\"");
@@ -375,8 +376,7 @@ public class UnstableMessageUtil {
 	}
 
 	private static String _getLogURL(
-			String jobVariant, Project project,
-			JSONObject runBuildURLJSONObject)
+			String jobVariant, Project project, String runBuildURL)
 		throws Exception {
 
 		StringBuilder sb = new StringBuilder();
@@ -393,8 +393,7 @@ public class UnstableMessageUtil {
 		sb.append("/");
 		sb.append(jobVariant);
 		sb.append("/");
-		sb.append(
-			JenkinsResultsParserUtil.getAxisVariable(runBuildURLJSONObject));
+		sb.append(JenkinsResultsParserUtil.getAxisVariable(runBuildURL));
 
 		return sb.toString();
 	}

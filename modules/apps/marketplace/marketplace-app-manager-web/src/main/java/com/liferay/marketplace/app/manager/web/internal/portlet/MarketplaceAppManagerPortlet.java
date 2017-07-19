@@ -30,6 +30,9 @@ import com.liferay.portal.kernel.model.PluginSetting;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.PluginSettingLocalService;
 import com.liferay.portal.kernel.service.PluginSettingService;
 import com.liferay.portal.kernel.service.PortletService;
@@ -44,9 +47,8 @@ import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Http;
-import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
@@ -68,6 +70,8 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
@@ -149,7 +153,7 @@ public class MarketplaceAppManagerPortlet extends MVCPortlet {
 		throws Exception {
 
 		UploadPortletRequest uploadPortletRequest =
-			PortalUtil.getUploadPortletRequest(actionRequest);
+			_portal.getUploadPortletRequest(actionRequest);
 
 		String fileName = GetterUtil.getString(
 			uploadPortletRequest.getFileName("file"));
@@ -200,6 +204,36 @@ public class MarketplaceAppManagerPortlet extends MVCPortlet {
 		catch (MalformedURLException murle) {
 			SessionErrors.add(actionRequest, "invalidURL", murle);
 		}
+	}
+
+	@Override
+	public void processAction(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws IOException, PortletException {
+
+		checkOmniAdmin();
+
+		super.processAction(actionRequest, actionResponse);
+	}
+
+	@Override
+	public void render(
+			RenderRequest renderRequest, RenderResponse renderResponse)
+		throws IOException, PortletException {
+
+		checkOmniAdmin();
+
+		super.render(renderRequest, renderResponse);
+	}
+
+	@Override
+	public void serveResource(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws IOException, PortletException {
+
+		checkOmniAdmin();
+
+		super.serveResource(resourceRequest, resourceResponse);
 	}
 
 	public void uninstallApp(
@@ -340,6 +374,19 @@ public class MarketplaceAppManagerPortlet extends MVCPortlet {
 		}
 	}
 
+	protected void checkOmniAdmin() throws PortletException {
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		if (!permissionChecker.isOmniadmin()) {
+			PrincipalException principalException =
+				new PrincipalException.MustBeCompanyAdmin(
+					permissionChecker.getUserId());
+
+			throw new PortletException(principalException);
+		}
+	}
+
 	@Override
 	protected void doDispatch(
 			RenderRequest renderRequest, RenderResponse renderResponse)
@@ -376,7 +423,7 @@ public class MarketplaceAppManagerPortlet extends MVCPortlet {
 			options.setLocation(url);
 			options.setPost(false);
 
-			byte[] bytes = HttpUtil.URLtoByteArray(options);
+			byte[] bytes = _http.URLtoByteArray(options);
 
 			Http.Response response = options.getResponse();
 
@@ -484,10 +531,18 @@ public class MarketplaceAppManagerPortlet extends MVCPortlet {
 	private static final String _DEPLOY_TO_PREFIX = "DEPLOY_TO__";
 
 	private AppService _appService;
+
+	@Reference
+	private Http _http;
+
 	private PanelAppRegistry _panelAppRegistry;
 	private PanelCategoryRegistry _panelCategoryRegistry;
 	private PluginSettingLocalService _pluginSettingLocalService;
 	private PluginSettingService _pluginSettingService;
+
+	@Reference
+	private Portal _portal;
+
 	private PortletService _portletService;
 
 }

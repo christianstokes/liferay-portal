@@ -24,11 +24,20 @@ import java.io.File;
 public class ProjectTemplatesArgs {
 
 	public ProjectTemplatesArgs() {
+		_author = System.getProperty("user.name");
 		_destinationDir = new File(System.getProperty("user.dir"));
+	}
+
+	public String getAuthor() {
+		return _author;
 	}
 
 	public String getClassName() {
 		return _className;
+	}
+
+	public String getContributorType() {
+		return _contributorType;
 	}
 
 	public File getDestinationDir() {
@@ -63,8 +72,20 @@ public class ProjectTemplatesArgs {
 		return _force;
 	}
 
+	public boolean isGradle() {
+		return _gradle;
+	}
+
+	public boolean isMaven() {
+		return _maven;
+	}
+
 	public void setClassName(String className) {
 		_className = className;
+	}
+
+	public void setContributorType(String contributorType) {
+		_contributorType = contributorType;
 	}
 
 	public void setDestinationDir(File destinationDir) {
@@ -75,12 +96,20 @@ public class ProjectTemplatesArgs {
 		_force = force;
 	}
 
+	public void setGradle(boolean gradle) {
+		_gradle = gradle;
+	}
+
 	public void setHostBundleSymbolicName(String hostBundleSymbolicName) {
 		_hostBundleSymbolicName = hostBundleSymbolicName;
 	}
 
 	public void setHostBundleVersion(String hostBundleVersion) {
 		_hostBundleVersion = hostBundleVersion;
+	}
+
+	public void setMaven(boolean maven) {
+		_maven = maven;
 	}
 
 	public void setName(String name) {
@@ -108,10 +137,22 @@ public class ProjectTemplatesArgs {
 	}
 
 	@Parameter(
+		description = "The name of the user associated with the code.",
+		names = "--author"
+	)
+	private String _author;
+
+	@Parameter(
 		description = "If a class is generated, provide the name of the class to be generated. If not provided, defaults to the project name.",
 		names = "--class-name"
 	)
 	private String _className;
+
+	@Parameter(
+		description = "Used to identify your module as a Theme Contributor. Also, used to add the Liferay-Theme-Contributor-Type and Web-ContextPath bundle headers.",
+		names = "--contributor-type"
+	)
+	private String _contributorType;
 
 	@Parameter(
 		description = "The directory where to create the new project.",
@@ -124,6 +165,13 @@ public class ProjectTemplatesArgs {
 		names = "--force"
 	)
 	private boolean _force;
+
+	@Parameter(
+		arity = 1,
+		description = "Add the Gradle build script and the Gradle Wrapper to the new project.",
+		names = "--gradle"
+	)
+	private boolean _gradle = true;
 
 	@Parameter(
 		description = "Print this message.", help = true,
@@ -148,6 +196,12 @@ public class ProjectTemplatesArgs {
 		help = true, names = "--list"
 	)
 	private boolean _list;
+
+	@Parameter(
+		description = "Add the Maven POM file and the Maven Wrapper to the new project.",
+		names = "--maven"
+	)
+	private boolean _maven;
 
 	@Parameter(
 		description = "The name of the new project.", names = "--name",

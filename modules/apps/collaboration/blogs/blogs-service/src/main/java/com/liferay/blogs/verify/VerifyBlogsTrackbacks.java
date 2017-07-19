@@ -14,8 +14,8 @@
 
 package com.liferay.blogs.verify;
 
-import com.liferay.blogs.kernel.model.BlogsEntry;
 import com.liferay.blogs.linkback.LinkbackConsumer;
+import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.service.BlogsEntryLocalService;
 import com.liferay.message.boards.kernel.model.MBDiscussion;
 import com.liferay.message.boards.kernel.model.MBMessage;
@@ -32,7 +32,6 @@ import com.liferay.portal.verify.VerifyProcess;
 
 import java.util.List;
 
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -43,12 +42,10 @@ import org.osgi.service.component.annotations.Reference;
  * </p>
  *
  * @author Alexander Chow
+ * @deprecated As of 1.1.0, replaced by {@link
+ *             com.liferay.blogs.internal.verify.VerifyBlogsTrackbacks}
  */
-@Component(
-	immediate = true,
-	property = {"verify.process.name=com.liferay.blogs.trackbacks"},
-	service = VerifyProcess.class
-)
+@Deprecated
 public class VerifyBlogsTrackbacks extends VerifyProcess {
 
 	@Override

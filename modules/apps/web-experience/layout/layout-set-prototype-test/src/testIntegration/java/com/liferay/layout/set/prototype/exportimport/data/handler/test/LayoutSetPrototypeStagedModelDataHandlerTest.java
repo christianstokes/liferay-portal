@@ -16,7 +16,6 @@ package com.liferay.layout.set.prototype.exportimport.data.handler.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
-import com.liferay.layout.set.prototype.exportimport.data.handler.LayoutSetPrototypeStagedModelDataHandler;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
@@ -31,7 +30,6 @@ import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
-import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -73,8 +71,7 @@ public class LayoutSetPrototypeStagedModelDataHandlerTest
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			SynchronousDestinationTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@After
 	@Override
@@ -139,7 +136,9 @@ public class LayoutSetPrototypeStagedModelDataHandlerTest
 		List<LayoutFriendlyURL> layoutLayoutFriendlyURLs =
 			LayoutFriendlyURLLocalServiceUtil.getLayoutFriendlyURLs(plid);
 
-		Assert.assertEquals(1, layoutLayoutFriendlyURLs.size());
+		Assert.assertEquals(
+			layoutLayoutFriendlyURLs.toString(), 1,
+			layoutLayoutFriendlyURLs.size());
 
 		layoutFriendlyURLs.add(layoutLayoutFriendlyURLs.get(0));
 	}
@@ -158,7 +157,7 @@ public class LayoutSetPrototypeStagedModelDataHandlerTest
 			_layoutPrototype.getGroupId(), true,
 			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
 
-		Assert.assertEquals(1, layouts.size());
+		Assert.assertEquals(layouts.toString(), 1, layouts.size());
 
 		Layout layout = layouts.get(0);
 
@@ -170,7 +169,8 @@ public class LayoutSetPrototypeStagedModelDataHandlerTest
 			LayoutFriendlyURLLocalServiceUtil.getLayoutFriendlyURLs(
 				layout.getPlid());
 
-		Assert.assertEquals(1, layoutFriendlyURLs.size());
+		Assert.assertEquals(
+			layoutFriendlyURLs.toString(), 1, layoutFriendlyURLs.size());
 
 		addDependentStagedModel(
 			dependentStagedModelsMap, LayoutFriendlyURL.class,
@@ -194,7 +194,7 @@ public class LayoutSetPrototypeStagedModelDataHandlerTest
 			_layoutSetPrototype.getGroupId(), true,
 			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
 
-		Assert.assertEquals(1, layouts.size());
+		Assert.assertEquals(layouts.toString(), 1, layouts.size());
 
 		Layout layout = layouts.get(0);
 
@@ -233,7 +233,9 @@ public class LayoutSetPrototypeStagedModelDataHandlerTest
 		List<StagedModel> dependentLayoutPrototypeStagedModels =
 			dependentStagedModelsMap.get(LayoutPrototype.class.getSimpleName());
 
-		Assert.assertEquals(1, dependentLayoutPrototypeStagedModels.size());
+		Assert.assertEquals(
+			dependentLayoutPrototypeStagedModels.toString(), 1,
+			dependentLayoutPrototypeStagedModels.size());
 
 		LayoutPrototype layoutPrototype =
 			(LayoutPrototype)dependentLayoutPrototypeStagedModels.get(0);
@@ -276,14 +278,9 @@ public class LayoutSetPrototypeStagedModelDataHandlerTest
 	protected Layout importLayoutFromLAR(StagedModel stagedModel)
 		throws DocumentException, IOException {
 
-		LayoutSetPrototypeStagedModelDataHandler
-			layoutSetPrototypeStagedModelDataHandler =
-				new LayoutSetPrototypeStagedModelDataHandler();
+		LayoutSetPrototype layoutSetPrototype = (LayoutSetPrototype)stagedModel;
 
-		String fileName =
-			layoutSetPrototypeStagedModelDataHandler.
-				getLayoutSetPrototypeLARFileName(
-					(LayoutSetPrototype)stagedModel);
+		String fileName = layoutSetPrototype.getLayoutSetPrototypeId() + ".lar";
 
 		String modelPath = ExportImportPathUtil.getModelPath(
 			stagedModel, fileName);
@@ -318,7 +315,8 @@ public class LayoutSetPrototypeStagedModelDataHandlerTest
 			}
 		}
 
-		Assert.assertEquals(1, importedLayouts.size());
+		Assert.assertEquals(
+			importedLayouts.toString(), 1, importedLayouts.size());
 
 		try {
 			return importedLayouts.get(0);
