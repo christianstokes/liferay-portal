@@ -39,8 +39,8 @@
 		</execute>
 
 		<execute macro="CurrencyConverter#convertPG">
-			<var name="currencyDataFrom" value="USD" />
-			<var name="currencyDataTo" value="EUR" />
+			<var name="currencyDataFrom" value="4.0" />
+			<var name="currencyDataTo" value="3.43" />
 			<var name="currencyFrom" value="USD" />
 			<var name="currencyTo" value="EUR" />
 			<var name="currencyValue" value="4" />
