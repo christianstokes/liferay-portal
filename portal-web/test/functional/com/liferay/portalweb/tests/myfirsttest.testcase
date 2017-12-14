@@ -1,20 +1,15 @@
-<definition component-name=<"portal-smoke">
+<definition component-name="portal-smoke">
 	<property name="testray.main.component.name" value="Smoke" />
-	
 	<command name="SuperAdminLogin" priority="5">
 		<execute function="Open" locator1="http://localhost:8080" />
-		<execute function="waitForPageToLoad" value="3000" />
-		<execute function="click" locator1="//button[contains(.,'Sign In')]"
-		<execute function="type" locator1="//input[@id="_com_liferay_login_web_portlet_LoginPortlet_login"]" value1="test@liferay.com" />
-		<execute function="type" locator1="//input[@id="_com_liferay_login_web_portlet_LoginPortlet_password"]" value1="test" />
-		<execute function="click" locator1="//button[contains(., 'Sign In')]"
-		<execute function="assertText" locator1="h2[contains(., 'Terms of Use')]"
-		<execute function="click" locator1="//button[contains(., 'I Agree')]"
-		<execute function="type" locator1="//input[@id="reminderQueryAnswer"]" value1="12345" />
-		<execute function="click" locator1="//button[contains(., 'Save')]"
-		<execute function="waitForPageToLoad" value="3000" />
-		<execute function="assertText" locator1="//span[@class='user-avatar-link']"
+		<execute function="Click" locator1="//button[contains(.,'Sign In')]" />
+		<execute function="Type" locator1="//input[@id='_com_liferay_login_web_portlet_LoginPortlet_login']" value1="test@liferay.com" />
+		<execute function="Type" locator1="//input[@id='_com_liferay_login_web_portlet_LoginPortlet_password']" value1="test" />
+		<execute function="Click" locator1="//button[contains(.,'Sign In')]" />
+		<execute function="AssertTextEquals" locator1="//h2[contains(.,'Terms of Use')]" />
+		<execute function="Click" locator1="//button[contains(.,'I Agree')]" />
+		<execute function="Type" locator1="//input[@id='reminderQueryAnswer']" value1="12345" />
+		<execute function="Click" locator1="//button[contains(.,'Save')]" />
+		<execute function="AssertTextEquals" locator1="//span[@class='user-avatar-link']" />
 	</command>
 </definition>
-
-<execute function="${function}#${functionCommand}" locator1="${locator}" OR locator1="${path}#${locatorKey}" value1="${value}" />
