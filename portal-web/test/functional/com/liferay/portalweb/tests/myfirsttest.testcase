@@ -2,7 +2,7 @@
 	<property name="testray.main.component.name" value="Smoke" />
 	<command name="SuperAdminLogin" priority="5">
 		<execute function="Open" locator1="http://localhost:8080" />
-		<execute function="Click" locator1="//button[contains(.,'Sign In')]" />
+		<execute function="Click" locator1="//a[contains(.,'Sign In')]" />
 		<execute function="Type" locator1="//input[@id='_com_liferay_login_web_portlet_LoginPortlet_login']" value1="test@liferay.com" />
 		<execute function="Type" locator1="//input[@id='_com_liferay_login_web_portlet_LoginPortlet_password']" value1="test" />
 		<execute function="Click" locator1="//button[contains(.,'Sign In')]" />
