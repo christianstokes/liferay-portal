@@ -3,13 +3,13 @@
 	<command name="SuperAdminLogin" priority="5">
 		<execute function="Open" locator1="http://localhost:8080" />
 		<execute function="Click" locator1="//a[contains(.,'Sign In')]" />
-		<execute function="Type" locator1="//input[@id='_com_liferay_login_web_portlet_LoginPortlet_login']" value1="test@liferay.com" />
-		<execute function="Type" locator1="//input[@id='_com_liferay_login_web_portlet_LoginPortlet_password']" value1="test" />
+		<execute function="Type" locator1="//input[contains(.,'Email Address')]" value1="test@liferay.com" />
+		<execute function="Type" locator1="//input[contains(@class,'field clearable form-control success-field')]" value1="test" />
 		<execute function="Click" locator1="//button[contains(.,'Sign In')]" />
 		<execute function="AssertTextEquals" locator1="//h2[contains(.,'Terms of Use')]" value1="Terms of Use" />
 		<execute function="Click" locator1="//button[contains(.,'I Agree')]" />
-		<execute function="Type" locator1="//input[@id='reminderQueryAnswer']" value1="12345" />
+		<execute function="Type" locator1="//input[contains(@class,'field reminder-query-answer form-control error-field')]" value1="12345" />
 		<execute function="Click" locator1="//button[contains(.,'Save')]" />
-		<execute function="AssertPartialText" locator1="//span[@class='user-avatar-link']" value1="user-avatar-image" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="//a[contains(.,'TT')]" value1="TT" />
 	</command>
 </definition>
