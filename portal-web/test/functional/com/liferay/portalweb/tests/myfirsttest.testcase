@@ -1,15 +1,14 @@
 <definition component-name="portal-smoke">
 	<property name="testray.main.component.name" value="Smoke" />
 	<command name="SuperAdminLogin" priority="5">
-		<execute function="Open" locator1="http://localhost:8080" />
-		<execute function="Click" locator1="//a[contains(.,'Sign In')]" />
-		<execute function="Type" locator1="LRLogin#EMAIL_ADDRESS_FIELD" value1="test@liferay.com"/>
-		<execute function="Type" locator1="LRLogin#PASSWORD_FIELD" value1="test" />
-		<execute function="Click" locator1="LRLogin#SIGN_IN_BUTTON" />
-		<execute function="AssertTextEquals" locator1="//h2[@class='portlet-title-text']" value1="Terms of Use" />
-		<execute function="Click" locator1="LRTermsOfUse#I_AGREE_BUTTON" />
-		<execute function="Type" locator1="LRPasswordReminder#ANSWER_FIELD" value1="12345" />
-		<execute function="Click" locator1="LRPasswordReminder#SAVE_BUTTON" />
-		<execute function="AssertTextEquals#assertPartialText" locator1="LRWelcome#WELCOME_PAGE" value1="TT" />
+
+		<execute macro="MyFirstMacro#login" />
+			<var name="userEmailAddress" value="test@liferay.com" />
+			<var name="userPassword" value="test" />
+			<var name="userPasswordReminder" value="12345" />
+		</execute>
+
+		<execute macro="MyFirstMacro#viewLogin" />
+
 	</command>
 </definition>
