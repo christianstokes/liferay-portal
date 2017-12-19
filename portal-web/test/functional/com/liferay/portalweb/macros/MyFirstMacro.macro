@@ -5,12 +5,22 @@
 		<execute function="Type" locator1="LRLogin#EMAIL_ADDRESS_FIELD" value1="${userEmailAddress}"/>
 		<execute function="Type" locator1="LRLogin#PASSWORD_FIELD" value1="${userPassword}" />
 		<execute function="Click" locator1="LRLogin#SIGN_IN_BUTTON" />
-		<execute function="AssertTextEquals" locator1="LRTermsOfUse#TERMS_OF_USE_TITLE" value1="Terms of Use" />
-		<execute function="Click" locator1="LRTermsOfUse#I_AGREE_BUTTON" />
-		<execute function="Type" locator1="LRPasswordReminder#ANSWER_FIELD" value1="${userPasswordReminder}" />
-		<execute function="Click" locator1="LRPasswordReminder#SAVE_BUTTON" />
-	</command>
 
+		<if>
+			<condition function="IsElementPresent" locator1="LRTermsOfUse#I_AGREE_BUTTON" />
+			<then>
+				<execute function="AssertTextEquals" locator1="LRTermsOfUse#TERMS_OF_USE_TITLE" value1="Terms of Use" />
+				<execute function="Click" locator1="LRTermsOfUse#I_AGREE_BUTTON" />
+			</then>
+		</if>
+		<if>
+			<condition function="IsElementPresent" locator1="LRPasswordReminder#ANSWER_FIELD" />
+			<then>
+				<execute function="Type" locator1="LRPasswordReminder#ANSWER_FIELD" value1="${userPasswordReminder}" />
+				<execute function="Click" locator1="LRPasswordReminder#SAVE_BUTTON" />
+			</then>
+		</if>
+	</command>
 	<command name="viewLogin">
 		<execute function="AssertElementNotPresent" locator1="LRWelcome#WELCOME_PAGE"/>
 	</command>

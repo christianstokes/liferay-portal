@@ -10,5 +10,15 @@
 
 		<execute macro="MyFirstMacro#viewLogin" />
 
+		<execute macro="User#logoutPG" />
+
+		<execute macro="MyFirstMacro#login" >
+			<var name="userEmailAddress" value="test@liferay.com" />
+			<var name="userPassword" value="test" />
+			<var name="userPasswordReminder" value="12345" />
+		</execute>
+
+		<execute macro="MyFirstMacro#viewLogin" />
+	
 	</command>
 </definition>
