@@ -2,7 +2,7 @@
 	<property name="testray.main.component.name" value="Smoke" />
 	<command name="SuperAdminLogin" priority="5">
 
-		<execute macro="MyFirstMacro#login" />
+		<execute macro="MyFirstMacro#login" >
 			<var name="userEmailAddress" value="test@liferay.com" />
 			<var name="userPassword" value="test" />
 			<var name="userPasswordReminder" value="12345" />
