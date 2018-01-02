@@ -62,6 +62,12 @@
 	<td>//div[contains(@id,'objectsSearchContainer')]/div/table/tbody/tr[contains(.,'${key_bookmarkName}')]/td//span/a/span</td>
 	<td></td>
 </tr>
+<!--SPLITTER_HEADING-->
+<tr>
+	<td>BOOKMARKS_SPLITTER_NAME</td>
+	<td>//div[contains(@class,'splitter') and contains(.,'Bookmarks')]</td>
+	<td></td>
+</tr>
 </tbody>
 </table>
 </body>

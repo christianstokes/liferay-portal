@@ -76,6 +76,8 @@
 			<var name="description" value="${folderDescription}" />
 		</execute>
 
+		<execute macro="Button#clickSave" />
+
 		<execute macro="BookmarksFolder#viewFolder">
 			<var name="folderDescription" value="${folderDescription}" />
 			<var name="folderName" value="${folderName}" />

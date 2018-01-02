@@ -393,8 +393,11 @@
 
 		<execute function="AssertClick" locator1="Button#MOVE" value1="Move" />
 
-		<execute macro="Alert#viewSuccessMessage" />
-		<execute function="AssertTextEquals" locator1="Message#EMPTY_INFO" value1="There are no bookmarks in this folder." />
+		<execute function="AssertElementNotPresent" locator1="Bookmarks#BOOKMARKS_SPLITTER_NAME" />
+		
+		<!--^^^replaced segment below -->
+		<!--<execute macro="Alert#viewSuccessMessage" />
+		<execute function="AssertTextEquals" locator1="Message#EMPTY_INFO" value1="There are no bookmarks in this folder." />-->
 	</command>
 
 	<command name="moveToHomeCP">
