@@ -1,13 +1,13 @@
 <html>
-<head>
-<title>Bookmarks</title>
-</head>
-<body>
-<table cellpadding="1" cellspacing="1" border="1">
-<thead>
-<tr><td rowspan="1" colspan="3">Bookmarks</td></tr>
-</thead>
-<tbody>
+	<head>
+		<title>Bookmarks</title>
+	</head>
+	<body>
+		<table cellpadding="1" cellspacing="1" border="1">
+			<thead>
+				<tr><td rowspan="1" colspan="3">Bookmarks</td></tr>
+			</thead>
+			<tbody>
 <!--BOOKMARKS_TABLE-->
 <tr>
 	<td>BOOKMARKS_TABLE_NAME</td>
