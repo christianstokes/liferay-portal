@@ -177,11 +177,18 @@ public abstract class BaseBuild implements Build {
 
 		long totalDelayTime = 0;
 
-		for (Build downstreamBuild : getDownstreamBuilds(null)) {
+		List<Build> allDownstreamBuilds = JenkinsResultsParserUtil.flatten(
+			getDownstreamBuilds(null));
+
+		if (allDownstreamBuilds.isEmpty()) {
+			return 0;
+		}
+
+		for (Build downstreamBuild : allDownstreamBuilds) {
 			totalDelayTime += downstreamBuild.getDelayTime();
 		}
 
-		return totalDelayTime / getDownstreamBuildCount(null);
+		return totalDelayTime / allDownstreamBuilds.size();
 	}
 
 	@Override
@@ -370,7 +377,21 @@ public abstract class BaseBuild implements Build {
 
 	@Override
 	public Long getDelayTime() {
-		return getStartTime() - getInvokedTime();
+		Long startTime = getStartTime();
+
+		long currentTime = System.currentTimeMillis();
+
+		if (startTime == null) {
+			startTime = currentTime;
+		}
+
+		Long invokedTime = getInvokedTime();
+
+		if (invokedTime == null) {
+			invokedTime = currentTime;
+		}
+
+		return startTime - invokedTime;
 	}
 
 	@Override
@@ -716,18 +737,32 @@ public abstract class BaseBuild implements Build {
 
 	@Override
 	public Build getLongestDelayedDownstreamBuild() {
-		Build longestDelayedDownstreamBuild = null;
+		List<Build> downstreamBuilds = getDownstreamBuilds(null);
 
-		for (Build downstreamBuild : getDownstreamBuilds(null)) {
-			if ((longestDelayedDownstreamBuild == null) ||
-				(downstreamBuild.getDelayTime() >
-					longestDelayedDownstreamBuild.getDelayTime())) {
+		if (downstreamBuilds.isEmpty()) {
+			return this;
+		}
+
+		Build longestDelayedBuild = downstreamBuilds.get(0);
+
+		for (Build downstreamBuild : downstreamBuilds) {
+			Build longestDelayedDownstreamBuild =
+				downstreamBuild.getLongestDelayedDownstreamBuild();
+
+			if (downstreamBuild.getDelayTime() >
+					longestDelayedDownstreamBuild.getDelayTime()) {
 
 				longestDelayedDownstreamBuild = downstreamBuild;
 			}
+
+			if (longestDelayedDownstreamBuild.getDelayTime() >
+					longestDelayedBuild.getDelayTime()) {
+
+				longestDelayedBuild = longestDelayedDownstreamBuild;
+			}
 		}
 
-		return longestDelayedDownstreamBuild;
+		return longestDelayedBuild;
 	}
 
 	@Override
@@ -950,6 +985,31 @@ public abstract class BaseBuild implements Build {
 			throw new RuntimeException(
 				"Unable to get test report JSON object", ioe);
 		}
+	}
+
+	public List<TestResult> getTestResults(
+		Build build, JSONArray suitesJSONArray, String testStatus) {
+
+		List<TestResult> testResults = new ArrayList<>();
+
+		for (int i = 0; i < suitesJSONArray.length(); i++) {
+			JSONObject suiteJSONObject = suitesJSONArray.getJSONObject(i);
+
+			JSONArray casesJSONArray = suiteJSONObject.getJSONArray("cases");
+
+			for (int j = 0; j < casesJSONArray.length(); j++) {
+				TestResult testResult = TestResultFactory.newTestResult(
+					build, casesJSONArray.getJSONObject(j));
+
+				if ((testStatus == null) ||
+					testStatus.equals(testResult.getStatus())) {
+
+					testResults.add(testResult);
+				}
+			}
+		}
+
+		return testResults;
 	}
 
 	@Override
@@ -1423,7 +1483,7 @@ public abstract class BaseBuild implements Build {
 			return;
 		}
 
-		TopLevelBuild topLevelBuild = (TopLevelBuild)getTopLevelBuild();
+		TopLevelBuild topLevelBuild = getTopLevelBuild();
 
 		if ((topLevelBuild == null) || topLevelBuild.fromArchive) {
 			return;
@@ -1459,9 +1519,8 @@ public abstract class BaseBuild implements Build {
 				throw new RuntimeException(
 					"Unable to download sample " + urlString, ioe);
 			}
-			else {
-				return;
-			}
+
+			return;
 		}
 
 		try {

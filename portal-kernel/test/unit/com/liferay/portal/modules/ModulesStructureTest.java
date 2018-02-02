@@ -393,9 +393,20 @@ public class ModulesStructureTest {
 					if (StringUtil.startsWith(fileName, ".lfrbuild-")) {
 						fileNames.add(fileName);
 
-						Assert.assertEquals(
-							"Marker file " + path + " must be empty", 0,
-							basicFileAttributes.size());
+						if (_nonEmptyMarkerFileNames.contains(fileName)) {
+							String content = ModulesStructureTestUtil.read(
+								path);
+
+							Assert.assertEquals(
+								"Forbidden leading or trailing whitespaces " +
+									"in " + path,
+								content.trim(), content);
+						}
+						else {
+							Assert.assertEquals(
+								"Marker file " + path + " must be empty", 0,
+								basicFileAttributes.size());
+						}
 					}
 
 					return FileVisitResult.CONTINUE;
@@ -414,6 +425,41 @@ public class ModulesStructureTest {
 					String.valueOf(readmePath)),
 				readme.contains("`" + fileName + "`"));
 		}
+	}
+
+	@Test
+	public void testScanReadmeFiles() throws IOException {
+		Files.walkFileTree(
+			_modulesDirPath,
+			new SimpleFileVisitor<Path>() {
+
+				@Override
+				public FileVisitResult preVisitDirectory(
+						Path dirPath, BasicFileAttributes basicFileAttributes)
+					throws IOException {
+
+					String dirName = String.valueOf(dirPath.getFileName());
+
+					if (dirName.equals("node_modules")) {
+						return FileVisitResult.SKIP_SUBTREE;
+					}
+
+					Path path = dirPath.resolve("README.markdown");
+
+					if (Files.exists(path)) {
+						BasicFileAttributes readmeBasicFileAttributes =
+							Files.readAttributes(
+								path, BasicFileAttributes.class);
+
+						Assert.assertNotEquals(
+							"Please delete the empty readme file " + path, 0,
+							readmeBasicFileAttributes.size());
+					}
+
+					return FileVisitResult.CONTINUE;
+				}
+
+			});
 	}
 
 	private void _addGradlePluginNames(
@@ -640,7 +686,7 @@ public class ModulesStructureTest {
 		return null;
 	}
 
-	private String _getGradleTemplate(String name) throws IOException {
+	private String _getGradleTemplate(String name) {
 		String template = StringUtil.read(ModulesStructureTest.class, name);
 
 		return StringUtil.replace(
@@ -1212,5 +1258,10 @@ public class ModulesStructureTest {
 		"compileOnly", "provided", "compile", "runtime", "testCompile",
 		"testRuntime", "testIntegrationCompile", "testIntegrationRuntime");
 	private static Path _modulesDirPath;
+	private static final Set<String> _nonEmptyMarkerFileNames =
+		SetUtil.fromList(
+			Arrays.asList(
+				".lfrbuild-lowest-major-version",
+				".lfrbuild-poshi-runner-resources"));
 
 }

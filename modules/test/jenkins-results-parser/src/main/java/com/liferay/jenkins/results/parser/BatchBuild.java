@@ -281,9 +281,14 @@ public class BatchBuild extends BaseBuild {
 				continue;
 			}
 
+			AxisBuild axisBuild = getAxisBuild(axisVariable);
+
+			if (axisBuild == null) {
+				continue;
+			}
+
 			testResults.addAll(
-				TestResult.getTestResults(
-					getAxisBuild(axisVariable), suitesJSONArray, testStatus));
+				getTestResults(axisBuild, suitesJSONArray, testStatus));
 		}
 
 		return testResults;
@@ -473,7 +478,8 @@ public class BatchBuild extends BaseBuild {
 				for (TestResult testResult : getTestResults(null)) {
 					String testStatus = testResult.getStatus();
 
-					if (testStatus.equals("PASSED") ||
+					if (testStatus.equals("FIXED") ||
+						testStatus.equals("PASSED") ||
 						testStatus.equals("SKIPPED")) {
 
 						continue;

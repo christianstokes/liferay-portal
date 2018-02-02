@@ -17,14 +17,12 @@
 <%@ include file="/init.jsp" %>
 
 <%
-User selUser = (User)request.getAttribute("user.selUser");
+User selUser = (User)request.getAttribute(UsersAdminWebKeys.SELECTED_USER);
 
-if (selUser == null) {
-	selUser = PortalUtil.getSelectedUser(request);
-}
+UserDisplayContext userDisplayContext = new UserDisplayContext(request, initDisplayContext);
 
-Contact selContact = (Contact)request.getAttribute("user.selContact");
-PasswordPolicy passwordPolicy = (PasswordPolicy)request.getAttribute("user.passwordPolicy");
+PasswordPolicy passwordPolicy = userDisplayContext.getPasswordPolicy();
+Contact selContact = userDisplayContext.getContact();
 
 Calendar birthday = CalendarFactoryUtil.getCalendar();
 
@@ -35,6 +33,8 @@ birthday.set(Calendar.YEAR, 1970);
 if (selContact != null) {
 	birthday.setTime(selContact.getBirthday());
 }
+
+String organizationIdsString = ParamUtil.getString(request, "organizationsSearchContainerPrimaryKeys");
 %>
 
 <liferay-ui:error-marker key="<%= WebKeys.ERROR_SECTION %>" value="details" />
@@ -44,6 +44,8 @@ if (selContact != null) {
 <div class="row">
 	<aui:fieldset cssClass="col-md-6">
 		<liferay-ui:success key="verificationEmailSent" message="your-email-verification-code-has-been-sent-and-the-new-email-address-will-be-applied-to-your-account-once-it-has-been-verified" />
+
+		<liferay-ui:error exception="<%= CompanyMaxUsersException.class %>" message="unable-to-create-user-account-because-the-maximum-number-of-users-has-been-reached" />
 
 		<liferay-ui:error exception="<%= GroupFriendlyURLException.class %>" focusField="screenName">
 
@@ -159,7 +161,7 @@ if (selContact != null) {
 					<c:when test='<%= UsersAdminUtil.hasUpdateFieldPermission(permissionChecker, user, selUser, "portrait") %>'>
 
 						<%
-						UserFileUploadsConfiguration userFileUploadsConfiguration = (UserFileUploadsConfiguration)request.getAttribute(UserFileUploadsConfiguration.class.getName());
+						UserFileUploadsConfiguration userFileUploadsConfiguration = ConfigurationProviderUtil.getSystemConfiguration(UserFileUploadsConfiguration.class);
 						%>
 
 						<liferay-ui:logo-selector
@@ -207,6 +209,10 @@ if (selContact != null) {
 
 		<aui:input disabled='<%= !UsersAdminUtil.hasUpdateFieldPermission(permissionChecker, user, selUser, "jobTitle") %>' name="jobTitle" />
 
+		<c:if test="<%= (selUser == null) && Validator.isNotNull(organizationIdsString) %>">
+			<aui:input name="addOrganizationIds" type="hidden" value="<%= organizationIdsString %>" />
+		</c:if>
+
 		<%
 		boolean lockedOut = false;
 
@@ -233,3 +239,11 @@ if (selContact != null) {
 		</c:if>
 	</aui:fieldset>
 </div>
+
+<aui:script>
+	function <portlet:namespace />saveUser(cmd) {
+		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = cmd;
+
+		submitForm(document.<portlet:namespace />fm);
+	}
+</aui:script>

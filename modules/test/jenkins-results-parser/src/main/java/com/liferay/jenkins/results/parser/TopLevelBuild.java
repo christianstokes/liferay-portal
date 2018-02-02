@@ -837,17 +837,30 @@ public class TopLevelBuild extends BaseBuild {
 					longestRunningDownstreamBuild.getDuration()));
 		}
 
-		TestResult longestRunningTest = getLongestRunningTest();
+		try {
+			Properties buildProperties =
+				JenkinsResultsParserUtil.getBuildProperties();
 
-		if (longestRunningTest != null) {
-			Dom4JUtil.getNewElement(
-				"p", null, "Longest Running Test: ",
-				Dom4JUtil.getNewAnchorElement(
-					longestRunningTest.getTestReportURL(),
-					longestRunningTest.getDisplayName()),
-				" in: ",
-				JenkinsResultsParserUtil.toDurationString(
-					longestRunningTest.getDuration()));
+			String longestRunningTestEnabled = buildProperties.getProperty(
+				"jenkins.report.longest.running.test.enabled", "false");
+
+			if (longestRunningTestEnabled.equals("true")) {
+				TestResult longestRunningTest = getLongestRunningTest();
+
+				if (longestRunningTest != null) {
+					Dom4JUtil.getNewElement(
+						"p", summaryElement, "Longest Running Test: ",
+						Dom4JUtil.getNewAnchorElement(
+							longestRunningTest.getTestReportURL(),
+							longestRunningTest.getDisplayName()),
+						" in: ",
+						JenkinsResultsParserUtil.toDurationString(
+							longestRunningTest.getDuration()));
+				}
+			}
+		}
+		catch (IOException ioe) {
+			throw new RuntimeException("Unable to get build properties", ioe);
 		}
 
 		return summaryElement;
@@ -1169,13 +1182,15 @@ public class TopLevelBuild extends BaseBuild {
 				}
 			}
 
-			if (failureElements.isEmpty()) {
+			Dom4JUtil.addToElement(rootElement, Dom4JUtil.getNewElement("hr"));
+
+			if (failureElements.isEmpty() &&
+				upstreamJobFailureElements.isEmpty()) {
+
 				failureElements.add(0, super.getGitHubMessageElement());
 			}
 
-			Dom4JUtil.addToElement(rootElement, Dom4JUtil.getNewElement("hr"));
-
-			if ((failureElements.size() == 1) &&
+			if (failureElements.isEmpty() &&
 				!upstreamJobFailureElements.isEmpty()) {
 
 				Dom4JUtil.addToElement(

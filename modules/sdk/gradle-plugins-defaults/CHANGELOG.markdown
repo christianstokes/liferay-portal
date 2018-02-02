@@ -2761,6 +2761,58 @@ when applied.
 ### Changed
 - [LPS-77186]: Update the [Liferay Gradle Plugins] dependency to version 3.5.95.
 
+## 5.2.51 - 2018-01-25
+
+### Changed
+- [LPS-77143]: Update the [Liferay Gradle Plugins] dependency to version 3.5.95.
+
+## 5.2.52 - 2018-01-25
+
+### Changed
+- [LPS-77423]: Update the [Liferay Gradle Plugins] dependency to version 3.5.97.
+
+### Removed
+- [LPS-77423]: Remove `--no-package-lock` default argument in the `npmInstall`
+task.
+- [LPS-77423]: Remove exclusion of the `fsevents` dependency from the generated
+`npm-shrinkwrap.json` files.
+
+## 5.2.53 - 2018-01-26
+
+### Changed
+- [LPS-74544]: Update the [Liferay Gradle Plugins] dependency to version 3.5.98.
+
+## 5.2.54 - 2018-01-29
+
+### Changed
+- [LPS-74544]: Update the [Liferay Gradle Plugins] dependency to version 3.5.99.
+- [LPS-77441]: Update the [Liferay Gradle Plugins Baseline] dependency to
+version 1.2.0.
+
+### Removed
+- [LPS-77441]: Remove code to set the default values of the properties
+`reportDiff` and `reportOnlyDiffPackages` for all `BaselineTask` instances,
+since it has been moved into [Liferay Gradle Plugins Baseline].
+
+## 5.2.55 - 2018-01-30
+
+### Changed
+- [LPS-77630]: Update the [Liferay Gradle Plugins] dependency to version
+3.5.100.
+
+## 5.2.56 - 2018-01-31
+
+### Changed
+- [LPS-77630]: Update the [Liferay Gradle Plugins] dependency to version
+3.5.101.
+
+## 5.2.57 - 2018-02-01
+
+### Changed
+- [LPS-77350]: Update the [Liferay Gradle Plugins] dependency to version 3.6.0.
+- [LPS-77350]: Update the [Liferay Gradle Plugins Baseline] dependency to
+version 1.2.1.
+
 [Find Security Bugs]: https://github.com/liferay/liferay-portal/tree/master/modules/third-party/com-h3xstream-findsecbugs
 [Gradle License Report]: https://github.com/jk1/Gradle-License-Report
 [Liferay CDN]: https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public
@@ -3067,11 +3119,16 @@ when applied.
 [LPS-76954]: https://issues.liferay.com/browse/LPS-76954
 [LPS-76957]: https://issues.liferay.com/browse/LPS-76957
 [LPS-77111]: https://issues.liferay.com/browse/LPS-77111
+[LPS-77143]: https://issues.liferay.com/browse/LPS-77143
 [LPS-77186]: https://issues.liferay.com/browse/LPS-77186
 [LPS-77250]: https://issues.liferay.com/browse/LPS-77250
 [LPS-77305]: https://issues.liferay.com/browse/LPS-77305
+[LPS-77350]: https://issues.liferay.com/browse/LPS-77350
 [LPS-77400]: https://issues.liferay.com/browse/LPS-77400
 [LPS-77402]: https://issues.liferay.com/browse/LPS-77402
+[LPS-77423]: https://issues.liferay.com/browse/LPS-77423
+[LPS-77441]: https://issues.liferay.com/browse/LPS-77441
+[LPS-77630]: https://issues.liferay.com/browse/LPS-77630
 [LRDOCS-2594]: https://issues.liferay.com/browse/LRDOCS-2594
 [LRDOCS-2841]: https://issues.liferay.com/browse/LRDOCS-2841
 [LRDOCS-2981]: https://issues.liferay.com/browse/LRDOCS-2981

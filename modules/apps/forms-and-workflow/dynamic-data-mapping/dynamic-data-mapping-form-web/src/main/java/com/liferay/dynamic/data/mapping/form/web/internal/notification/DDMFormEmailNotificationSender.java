@@ -32,6 +32,7 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.mail.kernel.model.MailMessage;
 import com.liferay.mail.kernel.service.MailService;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -54,10 +55,10 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.template.soy.utils.SoyHTMLContextValue;
+import com.liferay.portal.template.soy.utils.SoyHTMLSanitizer;
+import com.liferay.portal.template.soy.utils.SoyRawData;
 import com.liferay.portal.util.PrefsPropsUtil;
 
 import java.io.Writer;
@@ -280,7 +281,16 @@ public class DDMFormEmailNotificationSender {
 		}
 
 		fieldMap.put("label", labelString);
-		fieldMap.put("value", new SoyHTMLContextValue(sb.toString()));
+		fieldMap.put(
+			"value",
+			new SoyRawData() {
+
+				@Override
+				public Object getValue() {
+					return _soyHTMLSanitizer.sanitize(sb.toString());
+				}
+
+			});
 
 		return fieldMap;
 	}
@@ -551,6 +561,9 @@ public class DDMFormEmailNotificationSender {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private SoyHTMLSanitizer _soyHTMLSanitizer;
 
 	private UserLocalService _userLocalService;
 

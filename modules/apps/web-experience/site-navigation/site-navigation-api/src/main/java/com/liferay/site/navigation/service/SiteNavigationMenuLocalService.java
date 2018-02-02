@@ -61,6 +61,9 @@ public interface SiteNavigationMenuLocalService extends BaseLocalService,
 	 *
 	 * Never modify or reference this interface directly. Always use {@link SiteNavigationMenuLocalServiceUtil} to access the site navigation menu local service. Add custom service methods to {@link com.liferay.site.navigation.service.impl.SiteNavigationMenuLocalServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public SiteNavigationMenu addDefaultSiteNavigationMenu(long userId,
+		long groupId, ServiceContext serviceContext) throws PortalException;
+
 	public SiteNavigationMenu addSiteNavigationMenu(long userId, long groupId,
 		java.lang.String name, int type, ServiceContext serviceContext)
 		throws PortalException;
@@ -177,6 +180,9 @@ public interface SiteNavigationMenuLocalService extends BaseLocalService,
 		Projection projection);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public SiteNavigationMenu fetchAutoSiteNavigationMenu(long groupId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public SiteNavigationMenu fetchPrimarySiteNavigationMenu(long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -253,8 +259,8 @@ public interface SiteNavigationMenuLocalService extends BaseLocalService,
 		java.lang.String keywords);
 
 	public SiteNavigationMenu updateSiteNavigationMenu(long userId,
-		long siteNavigationMenuId, int type, ServiceContext serviceContext)
-		throws PortalException;
+		long siteNavigationMenuId, int type, boolean auto,
+		ServiceContext serviceContext) throws PortalException;
 
 	public SiteNavigationMenu updateSiteNavigationMenu(long userId,
 		long siteNavigationMenuId, java.lang.String name,
