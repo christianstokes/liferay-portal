@@ -1,0 +1,49 @@
+@component-name = "portal-smoke"
+definition {
+
+	property testray.main.component.name = "Smoke";
+
+	setUp {
+		echo("setup");
+	}
+
+	test OneRecording {
+		property proxy.server.enabled = "true";
+
+		ProxyUtil.startHarRecording("google");
+
+		Open(locator1 = "https://google.com");
+
+		var method = ProxyUtil.getHarRecording("$.log.entries[0].request.method");
+		var url = ProxyUtil.getHarRecording("$.log.entries[0].request.url");
+
+		echo("${method}: ${url}");
+	}
+
+	test MultipleRecordings {
+		property proxy.server.enabled = "true";
+
+		ProxyUtil.startHarRecording("google");
+
+		Open(locator1 = "https://google.com");
+
+		var method = ProxyUtil.getHarRecording("$.log.entries[0].request.method");
+		var url = ProxyUtil.getHarRecording("$.log.entries[0].request.url");
+
+		echo("${method}: ${url}");
+
+		ProxyUtil.stopHarRecording();
+
+		ProxyUtil.startHarRecording("liferay");
+
+		Open(locator1 = "http://localhost:8080");
+
+		var method = ProxyUtil.getHarRecording("$.log.entries[0].request.method");
+		var url = ProxyUtil.getHarRecording("$.log.entries[0].request.url");
+		var fullString = ProxyUtil.getHarRecording("$");
+
+		echo("${method}: ${url}");
+		echo("${fullString}");
+	}
+
+}
