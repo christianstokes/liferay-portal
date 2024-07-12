@@ -2288,6 +2288,8 @@ definition {
 	@description = "LPS-135495 Validate if, Input title values can only be changed in edit mode."
 	@priority = 3
 	test CheckEditableTranslatedInputTitle {
+		property portal.upstream = "poshi";
+
 		task ("Create a segment") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "Screen Name",
@@ -2375,6 +2377,8 @@ definition {
 	@description = "LPS-135495 Validate if, The title shown in the segments list shows the value for the current user language or the value for the criteria default language."
 	@priority = 3
 	test CheckTitleLanguageInSegmentsList {
+		property portal.upstream = "poshi";
+		
 		task ("Create new segment") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "Screen Name",
